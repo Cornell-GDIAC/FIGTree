@@ -1,0 +1,30 @@
+{
+  "name": "fugl",
+  "id": "1291500427204141656",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "capabilities": ["codegen"],
+  "enableProposedApi": false,
+  "editorType": ["dev"],
+  "ui": "ui.html",
+  "codegenLanguages": [
+    {
+      "label": "Language Label",
+      "value": "language-value"
+    }
+  ],
+  "codegenPreferences": [
+    {
+      "itemType": "select",
+      "propertyName": "outputFormat",
+      "label": "Output Format",
+      "options": [
+        { "label": "Scene Node", "value": "node", "isDefault": true },
+        { "label": "Widget", "value": "widget" }
+      ]
+    }
+  ],
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
+}

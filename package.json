@@ -1,0 +1,27 @@
+{
+  "name": "fugl",
+  "version": "1.0.0",
+  "description": "Figma Plugin for CUGL Scene Graph",
+  "main": "code.js",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "watch": "vite build --watch",
+    "format": "prettier --write ./src",
+    "format:check": "prettier --check ./src",
+    "lint": "eslint --cache src",
+    "zip": "zip release.zip -r dist manifest.json"
+  },
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.78.1",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "eslint": "^8.51.0",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0"
+  }
+}
