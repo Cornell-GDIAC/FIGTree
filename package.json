@@ -1,7 +1,7 @@
 {
-  "name": "fugl",
+  "name": "figtree",
   "version": "1.0.0",
-  "description": "Figma Plugin for CUGL Scene Graph",
+  "description": "Figma Plugin for GDIAC Scene Graph",
   "main": "code.js",
   "type": "module",
   "scripts": {

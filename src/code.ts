@@ -1,7 +1,7 @@
 /**
  * code.ts
  *
- * Main entry point for FUGL plugin
+ * Main entry point for FigTree plugin
  *
  * This file holds the main code for the plugin. Code in this file has access 
  * to the *figma document* via the figma global object. You can access browser 

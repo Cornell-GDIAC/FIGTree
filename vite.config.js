@@ -6,7 +6,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, "./src/code.ts"),
-      name: "fugl",
+      name: "figtree",
       fileName: () => "code.js",
       formats: ["iife"],
     },
