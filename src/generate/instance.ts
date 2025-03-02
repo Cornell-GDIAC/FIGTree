@@ -50,9 +50,9 @@ export async function genInstance(node: InstanceNode, parent: SceneNode) {
     }
     if (typeof(tag) === 'string'){
         switch(tag.toLowerCase()){
-            case "Button":
+            case "button":
                 return genButton(node, parent);
-            case "TextField":
+            case "textfield":
                 return genTextField(node.children[0] as TextNode, parent);
             default:
                 break;

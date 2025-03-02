@@ -42,17 +42,19 @@ import { genTextField } from "./text";
 export async function genComponent(node: ComponentNode, parent: SceneNode) {
     let tag = undefined;
     if (node.componentPropertyDefinitions) {
+        console.log("Found component properties")
         for (const key in node.componentPropertyDefinitions) {
             if (key.startsWith("Tag")) { // Find key that starts with "Tag"
                 tag = node.componentPropertyDefinitions[key].defaultValue;
             }
         }
     }
+    console.log(tag)
     if (typeof(tag) === 'string'){
         switch(tag.toLowerCase()){
-            case "Button":
+            case "button":
                 return genButton(node, parent);
-            case "TextField":
+            case "textfield":
                 return genTextField(node.children[0] as TextNode, parent);
             default:
                 break;
