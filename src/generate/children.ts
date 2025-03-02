@@ -93,10 +93,8 @@ export async function genChildrenByFloat(node: SceneNode) : Promise<Record<strin
     
     const parent = node;
     generatedChildren.forEach(({ name, node }, index) => {
-        const child = parent.children[index];
-        const components = name.split(":");
-        const suffix = components[components.length-1]        
-        const key = suffix in result ? `${suffix}_${index.toString()}` : suffix;
+        const child = parent.children[index];     
+        const key = name in result ? `${name}_${index.toString()}` : name;
         
         // Recenter the node
         node.data.position = getCenter(child);
@@ -250,9 +248,7 @@ export async function genChildrenByAnchor(node: SceneNode) : Promise<Record<stri
     );
     
     generatedChildren.forEach(({ name, node }, index) => {
-        const components = name.split(":");
-        const suffix = components[components.length-1]
-        const key = suffix in result ? `${suffix}_${index.toString()}` : suffix;
+        const key = name in result ? `${name}_${index.toString()}` : name;
         result[key] = node;
     });
     

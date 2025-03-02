@@ -42,10 +42,6 @@ export function genImage(node: RectangleNode, parent: SceneNode) {
     const imageFill = node.fills[0];
     const imageHash = imageFill.imageHash!;
     let texture = node.name;
-    if (texture.includes(":")) {
-        const components = texture.split(":");
-        texture = components[components.length-1];
-    }
     
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     
@@ -92,10 +88,6 @@ export async function genNinePatch(name: string, node: RectangleNode, parent: Sc
     const imageFill = node.fills[0];
     const imageHash = imageFill.imageHash!;
     let texture = node.name;
-    if (texture.includes(":")) {
-        const components = texture.split(":");
-        texture = components[components.length-1];
-    }
     
     let scale = 1;
     if (imageFill.scaleMode === "TILE" && imageFill.scalingFactor) {
