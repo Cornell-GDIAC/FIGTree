@@ -75,8 +75,6 @@ function makeIdentifier(str:string) {
 /**
  * Returns a CUGL node for the given Figma node
  *
- * If the node name has a colon, this looks at the keyword before the colon
- * for instructions on how to parse it.
  *
  * @param node  The Figma node
  *
