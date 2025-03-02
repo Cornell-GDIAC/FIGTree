@@ -267,7 +267,7 @@ export type CUGLFloatLayoutMixin = {
  *
  * Figma only supports anchor and float layout
  */
-type CUGLLayoutMixin = {} | CUGLAnchoredLayoutMixin | CUGLFloatLayoutMixin;
+export type CUGLLayoutMixin = {} | CUGLAnchoredLayoutMixin | CUGLFloatLayoutMixin;
 
 
 /**

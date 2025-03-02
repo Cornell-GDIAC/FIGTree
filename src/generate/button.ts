@@ -7,9 +7,13 @@
  * Figma. A button in CUGL is a scene graph node with a child representing
  * the up position, and an optional child representing the down node. 
  *
- * We handle this through tagging. The button is a frame/group/component
- * tagged with the name "button".  It is not necessary to tag the children,
- * but it is if you want a distinct up and down node.
+ * We handle this through tagging. The button is a instance or component
+ * tagged with the name "Button" as a property value. It is not necessary 
+ * to tag the children, however if the user wants to specify an up and down
+ * they must label the images "up" and "down" respecively.
+ * 
+ * It is not necessary to label the textures if there is only one child of
+ * the button. It will be treated as "up".
  *
  * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
  * Date: 1/24/24
@@ -19,27 +23,32 @@ import {
   CUGLButtonNode,
   CUGLLayoutMixin,
   CUGLChildrenMixin,
+  CUGLFormatType,
 } from "../types";
+import {
+    convertXAlign,
+    convertYAlign,
+    convertLayoutMode,
+} from "../util";
 
 import { genChildrenByFloat, genChildrenByAnchor } from "./children";
 
 /**
- * Returns a button corresponding to an annotated frame
+ * Returns a button corresponding to an annotated instance or component
  *
- * This function takes any frame tagged with "button" and turns it into 
- * a button. If there is only one child, that is the up node.  Otherwise
- * it looks for a node tagged with "up".  If there is no such node, it 
- * picks the first one.
+ * This function takes any instance or component with the property tag set as 
+ * "Button" and turns it into a button. If there is only one child, that is 
+ * the up node. Otherwise it looks for a node named "up". If there is no such 
+ * node, it picks the first one.
  * 
- * This function will only create a down node if there is a child tagged
- * with "down".
+ * This function will only create a down node if there is a child named "down".
  *
- * @param node      The frame to convert
- * @param parent    The parent of the frame
+ * @param node      The instance or component to convert
+ * @param parent    The parent of the instance or component
  *
- * @return a scene node corresponding to the given frame
+ * @return a scene node corresponding to the given instance or component
  */
-export async function genButton(node: FrameNode, parent: SceneNode) {
+export async function genButton(node: InstanceNode | ComponentNode, parent: SceneNode) {
     if (node.children.length == 0) {
         throw new Error('Keyword "button" attached to a node with no children',);
     }
@@ -49,26 +58,16 @@ export async function genButton(node: FrameNode, parent: SceneNode) {
     if (node.children.length == 1) {
         let name = node.children[0].name;
         if (name != undefined) {
-            const components = name.split(":");
-            const suffix = components[components.length-1]
-            if (components.length == 2) {
-                buttonNames[components[0]] = suffix;
-            } else {
-                buttonNames["up"] = suffix;
-            }
-            firstButton = suffix;
+            buttonNames["up"] = name;
+            firstButton = name;
         }
     } else {
         for (let ii = 0; ii < node.children.length; ii++) {
             let name = node.children[ii].name;
             if (name != undefined) {
-                const components = name.split(":");
-                const suffix = components[components.length-1]
-                if (components.length == 2) {
-                    buttonNames[components[0]] = suffix;
-                }
+                buttonNames[name] = name;
                 if (ii == 0) {
-                    firstButton = suffix;
+                    firstButton = name;
                 }
             }
         }
@@ -92,12 +91,12 @@ export async function genButton(node: FrameNode, parent: SceneNode) {
                                 : node.primaryAxisAlignItems,
                             ),
             orientation: convertLayoutMode(node.layoutMode),
-        };
+        } as CUGLFormatType;
     } else {
         children = await genChildrenByAnchor(node);
         format = {
             type: "Anchored",
-        };
+        } as CUGLFormatType;
     }
     
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;

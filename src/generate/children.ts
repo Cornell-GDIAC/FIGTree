@@ -73,8 +73,9 @@ type FloatChildType = CUGLNode & CUGLFloatLayoutMixin["children"]["key"]
  * @return a list of children arranged using a float layout
  */
 export async function genChildrenByFloat(node: SceneNode) : Promise<Record<string, FloatChildType>> {
+    // TODO: Correct type checking for unused scenario
     // TODO: Replace this space node with padding
-    const mode = (node.layoutMode === "HORIZONTAL");
+    const mode = ("layoutMode" in node && node.layoutMode === "HORIZONTAL");
     const startPadding = mode ? [node.paddingLeft,node.paddingBottom,node.itemSpacing,node.paddingTop]
                               : [node.paddingLeft,node.itemSpacing,node.paddingRight,node.paddingTop];
     const interPadding = mode ? [0,node.paddingBottom,node.itemSpacing,node.paddingTop]
@@ -84,7 +85,7 @@ export async function genChildrenByFloat(node: SceneNode) : Promise<Record<strin
     
     const result : Record<string, FloatChildType> = {};
     const generatedChildren = await Promise.all(
-        node.children.map(async (child) => ({
+        node.children.map(async (child:SceneNode) => ({
             name: child.name,
             node: await generateNode(child),
         })),
@@ -118,7 +119,7 @@ export async function genChildrenByFloat(node: SceneNode) : Promise<Record<strin
 
 // ANCHOR LAYOUT
 
-type AnchorChildType = CUGLNode & CUGLAnchoredLayoutMixin["children"]["key"];
+export type AnchorChildType = CUGLNode & CUGLAnchoredLayoutMixin["children"]["key"];
 
 /**
  * Applies layout settings to a child in an anchor layout.
@@ -242,7 +243,7 @@ export async function genChildrenByAnchor(node: SceneNode) : Promise<Record<stri
     
     const result : Record<string, AnchorChildType> = {};
     const generatedChildren = await Promise.all(
-        node.children.map(async (child) => ({
+        node.children.map(async (child:SceneNode) => ({
             name: child.name,
             node: await layoutByAnchor(child,absolute),
         })),

@@ -136,11 +136,8 @@ export const convertXAlign = (
         return "right";
     case "CENTER":
         return "center";
-    case "SPACE_BETWEEN":
-        return "space between";
-    case "BASELINE":
-        return "baseline";
-        //throw new Error(`${value} is not supported`);
+    default:
+        throw new Error(`${value} is not supported for ConvertXAlign`,);
   }
 };
 

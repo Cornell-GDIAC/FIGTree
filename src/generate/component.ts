@@ -1,5 +1,5 @@
 /*
- * frame.ts
+ * component.ts
  *
  * Module generating CUGL generic scene nodes.
  *
@@ -25,24 +25,43 @@ import {
     genChildrenByFloat, 
     genChildrenByAnchor 
 } from "./children";
+import { genButton } from "./button";
+import { genTextField } from "./text";
 
 /**
- * Returns a scene node corresponding to the given frame or group.
- * A group node is treated as a frame with no set layout mode. The
- * default layout node is Anchored.
+ * Returns a component node corresponding to the given frame
  *
- * @param node      The frame or group to convert
- * @param parent    The parent of the frame or group
+ * This function checks whether the component is a special
+ * UI element and generates each accordingly.
  *
- * @return a scene node corresponding to the given frame or group
+ * @param node      The component to convert
+ * @param parent    The parent of the component
+ *
+ * @return an component node corresponding to the given component
  */
-export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode) {
-    console.log(node.effects);
-
+export async function genComponent(node: ComponentNode, parent: SceneNode) {
+    let tag = undefined;
+    if (node.componentPropertyDefinitions) {
+        for (const key in node.componentPropertyDefinitions) {
+            if (key.startsWith("Tag")) { // Find key that starts with "Tag"
+                tag = node.componentPropertyDefinitions[key].defaultValue;
+            }
+        }
+    }
+    if (typeof(tag) === 'string'){
+        switch(tag.toLowerCase()){
+            case "Button":
+                return genButton(node, parent);
+            case "TextField":
+                return genTextField(node.children[0] as TextNode, parent);
+            default:
+                break;
+        }
+    }
     // Layout the children
     let children = undefined;
     let format = undefined;
-    if ("layoutMode" in node && node.layoutMode != "NONE") {
+    if (node.layoutMode != "NONE") {
         children = await genChildrenByFloat(node);
         format = {
             type: "Float",
@@ -57,12 +76,12 @@ export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode) {
                                 : node.primaryAxisAlignItems,
                             ),
             orientation: convertLayoutMode(node.layoutMode),
-        } as CUGLFormatType;
+        }as CUGLFormatType; 
     } else {
         children = await genChildrenByAnchor(node);
         format = {
             type: "Anchored",
-        } as CUGLFormatType;
+        }as CUGLFormatType;
     }
     
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;

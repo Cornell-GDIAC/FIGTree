@@ -14,7 +14,13 @@ import {
     roundToFixed, 
     hexColor,
 } from "../util";
-
+import {
+    CUGLPolyNode,
+    CUGLSVGNode
+} from "../types"
+import {
+    AnchorChildType
+} from "./children"
 
 /**
  * Returns the number of segments necessary for a smooth arc
@@ -204,20 +210,20 @@ export function genRectangle(node: RectangleNode, parent: SceneNode) {
         let sh = node.height;
         switch (node.strokeAlign) {
         case "INSIDE":
-            sw -= node.strokeWeight-epsilon;
-            sh -= node.strokeWeight-epsilon;
-            tl -= node.strokeWeight-epsilon;
-            tr -= node.strokeWeight-epsilon;
-            br -= node.strokeWeight-epsilon;
-            bl -= node.strokeWeight-epsilon;
+            sw -= (node.strokeWeight as number)-epsilon;
+            sh -= (node.strokeWeight as number)-epsilon;
+            tl -= (node.strokeWeight as number)-epsilon;
+            tr -= (node.strokeWeight as number)-epsilon;
+            br -= (node.strokeWeight as number)-epsilon;
+            bl -= (node.strokeWeight as number)-epsilon;
             break;
         case "OUTSIDE":
-            sw += node.strokeWeight-epsilon;
-            sh += node.strokeWeight-epsilon;
-            tl += node.strokeWeight-epsilon;
-            tr += node.strokeWeight-epsilon;
-            br += node.strokeWeight-epsilon;
-            bl += node.strokeWeight-epsilon;
+            sw += (node.strokeWeight as number)-epsilon;
+            sh += (node.strokeWeight as number)-epsilon;
+            tl += (node.strokeWeight as number)-epsilon;
+            tr += (node.strokeWeight as number)-epsilon;
+            br += (node.strokeWeight as number)-epsilon;
+            bl += (node.strokeWeight as number)-epsilon;
             break;
         }
         
@@ -320,12 +326,12 @@ export function genEllipse(node: EllipseNode, parent: SceneNode) {
         let sh = node.height;
         switch (node.strokeAlign) {
         case "INSIDE":
-            sw -= node.strokeWeight-epsilon;
-            sh -= node.strokeWeight-epsilon;
+            sw -= (node.strokeWeight as number)-epsilon;
+            sh -= (node.strokeWeight as number)-epsilon;
             break;
         case "OUTSIDE":
-            sw += node.strokeWeight-epsilon;
-            sh += node.strokeWeight-epsilon;
+            sw += (node.strokeWeight as number)-epsilon;
+            sh += (node.strokeWeight as number)-epsilon;
             break;
         }
         

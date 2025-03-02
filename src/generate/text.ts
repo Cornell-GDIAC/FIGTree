@@ -34,7 +34,7 @@ export function genLabel(node: TextNode, parent: SceneNode) {
     let fname  = (node.fontName as FontName).family.toLowerCase();
     let fstyle = (node.fontName as FontName).style.toLowerCase();
     fstyle = fstyle[0].toUpperCase() + fstyle.slice(1);
-    let fsize  = node.fontSize;
+    let fsize  = node.fontSize as number;
     const fkey = fname+fstyle+fsize;
     
     // TODO: Not sure how to get padding
@@ -93,7 +93,7 @@ export function genTextField(node: TextNode, parent: SceneNode) {
     let fname  = (node.fontName as FontName).family.toLowerCase();
     let fstyle = (node.fontName as FontName).style.toLowerCase();
     fstyle = fstyle[0].toUpperCase() + fstyle.slice(1);
-    let fsize  = node.fontSize;
+    let fsize  = node.fontSize as number;
     const fkey = fname+fstyle+fsize;
     
     // TODO: Not sure how to get padding

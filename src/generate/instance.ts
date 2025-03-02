@@ -1,5 +1,5 @@
 /*
- * frame.ts
+ * instance.ts
  *
  * Module generating CUGL generic scene nodes.
  *
@@ -14,6 +14,7 @@ import {
   CUGLBaseNode,
   CUGLLayoutMixin,
   CUGLChildrenMixin,
+  CUGLFormatType,
 } from "../types";
 import {
     convertXAlign,
@@ -24,19 +25,39 @@ import {
     genChildrenByFloat, 
     genChildrenByAnchor 
 } from "./children";
+import { genButton } from "./button";
+import { genTextField } from "./text";
 
 /**
- * Returns a scene node corresponding to the given frame
+ * Returns a instance node corresponding to the given frame
  *
- * This function assumes that this is not a tagged frame, and is therefore
- * not a special UI element.
+ * This function checks whether the instance is a special
+ * UI element and generates each accordingly.
  *
- * @param node      The frame to convert
- * @param parent    The parent of the frame
+ * @param node      The instance to convert
+ * @param parent    The parent of the instance
  *
- * @return a scene node corresponding to the given frame
+ * @return an instance node corresponding to the given instance
  */
-export async function genInstance(node: SceneNode, parent: SceneNode) {
+export async function genInstance(node: InstanceNode, parent: SceneNode) {
+    let tag = undefined;
+    if (node.componentProperties) {
+        for (const key in node.componentProperties) {
+            if (key.startsWith("Tag")) { // Find key that starts with "Tag"
+                tag = node.componentProperties[key].value;
+            }
+        }
+    }
+    if (typeof(tag) === 'string'){
+        switch(tag.toLowerCase()){
+            case "Button":
+                return genButton(node, parent);
+            case "TextField":
+                return genTextField(node.children[0] as TextNode, parent);
+            default:
+                break;
+        }
+    }
     // Layout the children
     let children = undefined;
     let format = undefined;
@@ -55,12 +76,12 @@ export async function genInstance(node: SceneNode, parent: SceneNode) {
                                 : node.primaryAxisAlignItems,
                             ),
             orientation: convertLayoutMode(node.layoutMode),
-        };
+        }as CUGLFormatType; 
     } else {
         children = await genChildrenByAnchor(node);
         format = {
             type: "Anchored",
-        };
+        }as CUGLFormatType;
     }
     
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;

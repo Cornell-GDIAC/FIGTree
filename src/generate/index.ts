@@ -10,9 +10,10 @@
  * identifiers (numbers, letters, underscore, and not beginning with a number).
  * Only the root node may not have a name.
  *
- * If a name contains a colon, then the word before the colon is a "tag", 
- * either expressing the UI element associated with this node, or (in the
- * case of complex UI elements like buttons) a parameter in the parent node.
+ * Special UI elements are implemented through instances and components. They
+ * are marked by the component property "Tag". The value of the property is
+ * the type of special UI to implement. Users are expected to follow the
+ * specification for creating each special UI type in figma.
  *
  * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
  * Date: 1/24/24
@@ -30,10 +31,10 @@ import {
 // The relevant support functions for this package
 import { genFrame } from "./frame";
 import { genImage } from "./image";
-import { genButton } from "./button";
 import { genInstance } from "./instance";
-import { genLabel, genTextField } from "./text";
+import { genLabel } from "./text";
 import { genRectangle, genEllipse, genPolygon } from "./shape";
+import { genComponent } from "./component";
 
 // Map for exporting textures
 export let imageHashMap = new Map<string, string>();
@@ -49,7 +50,7 @@ export let fontHashMap = new Map<string, number>();
  *
  * @return true if the string is a valid identifier name
  */
-function isIdentifier(str) {
+function isIdentifier(str:string) {
     return /^[a-zA-Z_][a-zA-Z_0-9]*$/.test(str);
 }
 
@@ -60,7 +61,7 @@ function isIdentifier(str) {
  *
  * @return true if the string is a valid identifier name
  */
-function makeIdentifier(str) {
+function makeIdentifier(str:string) {
 	const regex = /^[a-zA-Z_0-9]*$/;
 	var result = str.replace(regex,'_');
 	var firstChar = result.charAt(0);
@@ -84,43 +85,8 @@ function makeIdentifier(str) {
 export async function generateNode(node: SceneNode): Promise<CUGLNode> {
     const parent = node.parent as SceneNode;
     
-    // Parse the name
-    let name = undefined;
-    let special = undefined;
-    if ('name' in node) {
-        const components = node.name.split(":");
-        if (components.length == 1) {
-            name = components[0];
-            if (!isIdentifier(name)) {
-            	name = makeIdentifier(name);
-            }
-        } else if (components.length == 2) {
-            special = components[0].toLowerCase();
-            name = components[1];
-        } else {
-            throw new Error(`${node.name} has too many colons`,);
-        }
-    }
-    
-    if (parent != undefined && name == undefined) {
+    if (parent != undefined && node.name == undefined) {
         throw new Error("Internal node is missing a name");
-    }
-    
-    // Handle the special ones first
-    if (special != undefined) {
-        switch (special) {
-        case "edit":
-            return genTextField(node, parent);
-        case "button":
-            return genButton(node, parent);
-        case "up":
-        case "down":
-            // These are internal parameters
-            break;
-        default:
-            // TODO: Support 9-slice plugin
-            throw new Error(`Keyword "${special}" is not recognized`,);
-        }
     }
     
     // Now do the standards
@@ -141,11 +107,10 @@ export async function generateNode(node: SceneNode): Promise<CUGLNode> {
     case "INSTANCE":
         return genInstance(node, parent);
     case "COMPONENT":
-        return genFrame(node, parent);
+        return genComponent(node, parent);
     case "POLYGON":
         return genPolygon(node, parent);
     // TODO: All of the listed ones below should be investigated
-    case "COMPONENT_SET":
     case "STAR":
     default:
     	console.log("Parent:"+parent.type+","+parent.id);
@@ -214,7 +179,7 @@ export function generateFonts(): string {
     for (const font of fontHashMap.keys()) {
         fonts[font] = { 
             file: "fonts/[filename].png",
-            size: fontHashMap.get(font)
+            size: fontHashMap.get(font) as number
         };
     }
     fontHashMap.clear();
