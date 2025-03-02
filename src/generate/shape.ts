@@ -15,6 +15,7 @@ import {
     hexColor,
 } from "../util";
 import {
+    CUGLNode,
     CUGLPolyNode,
     CUGLSVGNode
 } from "../types"
@@ -176,7 +177,7 @@ export function roundedRect(w : number, h : number,
  *
  * @return a CUGL rectangle for the corresponding Figma rectangle
  */
-export function genRectangle(node: RectangleNode, parent: SceneNode) {
+export function genRectangle(node: RectangleNode, parent: SceneNode) : CUGLNode {
     const fill = (node.fills as Paint[])[0] as SolidPaint;
     const fillCode = hexColor(fill);
     
@@ -274,7 +275,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode) {
                 visible: node.visible,
             },
             children,
-        };
+        } as CUGLNode;
     
         return groupCode;
     }
@@ -297,7 +298,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode) {
  * @return a CUGL ellipse for the corresponding Figma rectangle
  */
 
-export function genEllipse(node: EllipseNode, parent: SceneNode) {
+export function genEllipse(node: EllipseNode, parent: SceneNode) : CUGLNode{
     const fill = (node.fills as Paint[])[0] as SolidPaint;
     const fillCode = hexColor(fill);
     
@@ -382,7 +383,7 @@ export function genEllipse(node: EllipseNode, parent: SceneNode) {
                 visible: node.visible,
             },
             children,
-        };
+        } as CUGLNode;
     
         return groupCode;
     }
