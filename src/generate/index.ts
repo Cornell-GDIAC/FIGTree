@@ -34,7 +34,6 @@ import { genImage } from "./image";
 import { genInstance } from "./instance";
 import { genLabel } from "./text";
 import { genRectangle, genEllipse, genPolygon } from "./shape";
-import { genComponent } from "./component";
 
 // Map for exporting textures
 export let imageHashMap = new Map<string, string>();
@@ -105,7 +104,7 @@ export async function generateNode(node: SceneNode): Promise<CUGLNode> {
     case "INSTANCE":
         return genInstance(node, parent);
     case "COMPONENT":
-        return genComponent(node, parent);
+        return genFrame(node, parent);
     case "POLYGON":
         return genPolygon(node, parent);
     // TODO: All of the listed ones below should be investigated

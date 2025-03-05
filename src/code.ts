@@ -23,6 +23,7 @@ import { generate, generateTextures, generateFonts } from "./generate";
  * @return the JSON representation of the Figma document
  */
 figma.codegen.on("generate", async (event) => {
+    console.log(event.node)
     return [
         {
             title: "Figma Scene",
