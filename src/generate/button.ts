@@ -58,9 +58,9 @@ export async function genButton(node: InstanceNode, parent: SceneNode) {
         }
     }
     if (isComponentSet){
-        genButtonFromComponentSet(node, parent);
+        return genButtonFromComponentSet(node, parent);
     } else {
-        genButtonFromComponent(node, parent);
+        return genButtonFromComponent(node, parent);
     }
 }
 
@@ -81,11 +81,6 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
     if (node.children.length != 1) {
         throw new Error('Keyword "button" attached to a node with no children or more than 1 child',);
     }
-    // 1) Check if the instance state is valid
-    // 2) Acquire the component set
-    // 3) Loop through each of the children, parse name, compare to settings of instance but with opposite state
-    //      3.1) Use Map to parse name and assign each variant to a value
-    // 4) Throw error if up state is not found, don't assign down if not found
     
     let firstButton = "";
     let name = node.children[0].name;
@@ -161,35 +156,61 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
         throw new Error('Error with how component set and instance were defined')
     }
 
+    let searchProperties = new Map<String, String | Boolean>();
+
+    // Define search properties both up and down state.
+    for (const key in node.componentProperties) {
+        if (node.componentProperties[key].type === "VARIANT") {
+            if (key.toLowerCase() !== "state"){
+                searchProperties.set(key, node.componentProperties[key].value);
+            }
+        }
+    }
+
+    let newChildren : ComponentNode[] = []; 
     let componentSet = node.mainComponent.parent
 
     let buttonNames: Record<string, string> = {};
-    let realNames: Record<string, string> = {};
-    let firstButton = "";
-    if (componentSet.children.length == 1) {
-        let name = node.children[0].name;
+
+    for (let ii = 0; ii < componentSet.children.length; ii++) {
+        let name = componentSet.children[ii].name;
         if (name != undefined) {
-            buttonNames["up"] = name.split("=")[1];
-            realNames["up"] = name;
-            firstButton = name;
-        }
-    } else {
-        for (let ii = 0; ii < node.children.length; ii++) {
-            let name = node.children[ii].name;
-            if (name != undefined) {
-                buttonNames[name] = name;
-                if (ii == 0) {
-                    firstButton = name;
+            let properties = name.split(', ');
+            let correctSettings = true;
+            let upOrDown : string | undefined = undefined;
+            // Check if component shares all desired properties and record up/down
+            for (let jj = 0; jj < properties.length; jj++){
+                let variant = properties[jj].split('=');
+                if (variant[0].toLowerCase() === 'state'){
+                    if (variant[1].toLowerCase() === 'up' || variant[1].toLowerCase() === 'down'){
+                        upOrDown = variant[1].toLowerCase();
+                    }
+                }
+                else if (searchProperties.get(variant[0]) !== variant[1]){
+                    correctSettings = false;
                 }
             }
+            // If button is not up or down, it is not added as a child.
+            console.log(correctSettings);
+            console.log(upOrDown);
+            if (correctSettings && upOrDown){
+                newChildren.push(componentSet.children[ii] as ComponentNode);
+                buttonNames[upOrDown] = componentSet.children[ii].name;
+            }
         }
+    }
+    if (newChildren.length == 0){
+        throw new Error('Could not find any up or down button states');
+    }
+    if (!('up' in buttonNames)){
+        throw new Error('Up state must be defined for a button from a component set');
     }
     
     // Layout the children
     let children = undefined;
     let format = undefined;
     if (node.layoutMode != "NONE") {
-        children = await genChildrenByFloat(node);
+        children = await genChildrenByFloat(node, newChildren);
         format = {
             type: "Float",
             x_alignment: convertXAlign(
@@ -205,7 +226,7 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
             orientation: convertLayoutMode(node.layoutMode),
         } as CUGLFormatType;
     } else {
-        children = await genChildrenByAnchor(node);
+        children = await genChildrenByAnchor(node, newChildren);
         format = {
             type: "Anchored",
         } as CUGLFormatType;
@@ -221,7 +242,7 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
             angle: node.rotation,
             position:[roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
-            upnode: "up" in buttonNames ? realNames["up"] : firstButton,
+            upnode: buttonNames["up"],
         },
         children,
     };

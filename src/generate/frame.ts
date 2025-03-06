@@ -37,8 +37,6 @@ import {
  * @return a scene node corresponding to the given frame or group
  */
 export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode) {
-    console.log(node.effects);
-
     // Layout the children
     let children = undefined;
     let format = undefined;

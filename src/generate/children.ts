@@ -68,13 +68,19 @@ type FloatChildType = CUGLNode & CUGLFloatLayoutMixin["children"]["key"]
  * The names of the children exclude any preprocessing directives (e.g names
  * before the colon).
  * 
+ * Optionally, this function can take in some custom children to replace the
+ * node's direct children.
+ * 
  * @param node  The parent node
+ * @param children  Array of SceneNodes specifying a custom set of children.
  *
  * @return a list of children arranged using a float layout
  */
-export async function genChildrenByFloat(node: SceneNode) : Promise<Record<string, FloatChildType>> {
+export async function genChildrenByFloat(node: SceneNode, children? : SceneNode[]) : Promise<Record<string, FloatChildType>> {
     // TODO: Correct type checking for unused scenario
     // TODO: Replace this space node with padding
+    const childNodes = children ?? node.children;
+
     const mode = ("layoutMode" in node && node.layoutMode === "HORIZONTAL");
     const startPadding = mode ? [node.paddingLeft,node.paddingBottom,node.itemSpacing,node.paddingTop]
                               : [node.paddingLeft,node.itemSpacing,node.paddingRight,node.paddingTop];
@@ -85,15 +91,14 @@ export async function genChildrenByFloat(node: SceneNode) : Promise<Record<strin
     
     const result : Record<string, FloatChildType> = {};
     const generatedChildren = await Promise.all(
-        node.children.map(async (child:SceneNode) => ({
+        childNodes.map(async (child:SceneNode) => ({
             name: child.name,
             node: await generateNode(child),
         })),
     );
     
-    const parent = node;
     generatedChildren.forEach(({ name, node }, index) => {
-        const child = parent.children[index];     
+        const child = childNodes[index];     
         const key = name in result ? `${name}_${index.toString()}` : name;
         
         // Recenter the node
@@ -126,11 +131,15 @@ export type AnchorChildType = CUGLNode & CUGLAnchoredLayoutMixin["children"]["ke
  * part we only need to change coordinate systems. By default, offsets are
  * measured in percentages. However, if absolute is true, they will be 
  * measured in pixels instead.
+ * 
+ * For custom children, setPosition should be set to true so that the final
+ * offsets are just (0,0).
  *
  * @param child     The scene node to layout
+ * @param setPosition  True if the position of the child should be set to (0,0)
  * @param absolute  Whether the layout is absolute
  */
-export async function layoutByAnchor(child: SceneNode, absolute: boolean) : Promise<AnchorChildType> {
+export async function layoutByAnchor(child: SceneNode, absolute: boolean, setPosition? : boolean) : Promise<AnchorChildType> {
     const parent = child.parent as SceneNode;
     const constraints = "constraints" in child ? child.constraints : undefined;
     
@@ -205,8 +214,8 @@ export async function layoutByAnchor(child: SceneNode, absolute: boolean) : Prom
         y_offset /= parent.height;
     }
     
-    x_offset = roundToFixed(x_offset,2);
-    y_offset = roundToFixed(y_offset,2);
+    x_offset = setPosition? 0 : roundToFixed(x_offset,2);
+    y_offset = setPosition? 0 : roundToFixed(y_offset,2);
     return {
         ...cuglChild,
         layout: {
@@ -218,7 +227,6 @@ export async function layoutByAnchor(child: SceneNode, absolute: boolean) : Prom
         },
     };
 }
-
 
 /**
  * Returns a list of children arranged using an anchor layout
@@ -235,15 +243,17 @@ export async function layoutByAnchor(child: SceneNode, absolute: boolean) : Prom
  *
  * @return a list of children arranged using a float layout
  */
-export async function genChildrenByAnchor(node: SceneNode) : Promise<Record<string, AnchorChildType>> {
+export async function genChildrenByAnchor(node: SceneNode, children? : SceneNode[]) : Promise<Record<string, AnchorChildType>> {
     // TODO: Support toggling absolute via config
+    const childNodes = children ?? node.children;
+    
     const absolute = false;
     
     const result : Record<string, AnchorChildType> = {};
     const generatedChildren = await Promise.all(
-        node.children.map(async (child:SceneNode) => ({
+        childNodes.map(async (child:SceneNode) => ({
             name: child.name,
-            node: await layoutByAnchor(child,absolute),
+            node: await layoutByAnchor(child,absolute,!!children),
         })),
     );
     
