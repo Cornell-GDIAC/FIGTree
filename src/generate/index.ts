@@ -77,10 +77,12 @@ function makeIdentifier(str:string) {
  *
  *
  * @param node  The Figma node
- *
+ * @param root  True if this is the root node, false otherwise. If not included,
+ * the default value is false.
+ * 
  * @return a CUGL node for the given Figma node
  */
-export async function generateNode(node: SceneNode): Promise<CUGLNode> {
+export async function generateNode(node: SceneNode, root : boolean = false): Promise<CUGLNode> {
     const parent = node.parent as SceneNode;
     
     if (parent != undefined && node.name == undefined) {
@@ -90,24 +92,24 @@ export async function generateNode(node: SceneNode): Promise<CUGLNode> {
     // Now do the standards
     switch (node.type) {
     case "TEXT":
-        return genLabel(node, parent);
+        return genLabel(node, parent, root);
     case "GROUP":
     case "FRAME":
-        return genFrame(node, parent);
+        return genFrame(node, parent, root);
     case "RECTANGLE":
         if (node.fills !== figma.mixed && node.fills?.[0]?.type === "IMAGE") {
-            return genImage(node, parent);
+            return genImage(node, parent, root);
         } else {
-            return genRectangle(node, parent);
+            return genRectangle(node, parent, root);
         }
     case "ELLIPSE":
-        return genEllipse(node, parent);
+        return genEllipse(node, parent, root);
     case "INSTANCE":
-        return genInstance(node, parent);
+        return genInstance(node, parent, root);
     case "COMPONENT":
-        return genComponent(node, parent);
+        return genComponent(node, parent, root);
     case "POLYGON":
-        return genPolygon(node, parent);
+        return genPolygon(node, parent, root);
     // TODO: All of the listed ones below should be investigated
     case "STAR":
     default:
@@ -202,10 +204,11 @@ const getOutputFormat = () => {
  * the output if the user wants a Widget instead.
  *
  * @param node  The top level node
+ * @param root  True if this is the root node, false otherwise
  *
  * @return the CUGL scene graph from the top level node
  */
-export const generate = async (node: SceneNode,): Promise<CUGLNode | CUGLWidget> => {
+export const generate = async (node: SceneNode, root : boolean = false): Promise<CUGLNode | CUGLWidget> => {
     let cuglNode = await generateNode(node);
     switch (getOutputFormat()) {
     case "node":

@@ -22,10 +22,11 @@ import { fontHashMap } from "./index";
  *
  * @param node      The image node
  * @param parent    The image parent
+ * @param root      True if this is the root node false otherwise.
  *
  * @return an (uneditable) label for the given text node
  */
-export function genLabel(node: TextNode, parent: SceneNode) {
+export function genLabel(node: TextNode, parent: SceneNode, root: boolean = false) {
     // Construct color array for the foreground
     const color = (node.fills as Paint[])[0] as SolidPaint;
     const colorCode = hexColor(color);
@@ -44,7 +45,7 @@ export function genLabel(node: TextNode, parent: SceneNode) {
         data: {
             anchor: [0, 0],
             size: [node.width, node.height],
-            position: [node.x, ypos],
+            position: root? [0,0] : [node.x, ypos],
             angle: node.rotation,
             visible: node.visible,
             font: fkey,

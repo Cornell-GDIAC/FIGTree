@@ -29,10 +29,11 @@ import { roundToFixed } from "../util";
  *
  * @param node      The image node
  * @param parent    The image parent
+ * @param root      True if root node, otherwise false
  *
  * @return an image node for the corresponding Figma rectangle
  */
-export function genImage(node: RectangleNode, parent: SceneNode) {
+export function genImage(node: RectangleNode, parent: SceneNode, root: boolean = false) {
     if (node.fills === figma.mixed || node.fills?.[0]?.type !== "IMAGE") {
         throw new Error("Unsupported rectangular object in Figma graph");
     }
@@ -53,7 +54,7 @@ export function genImage(node: RectangleNode, parent: SceneNode) {
             anchor: [0, 0],
             size: [roundToFixed(node.width,2),roundToFixed(node.height,2)],
             angle: node.rotation,
-            position: [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
     };
