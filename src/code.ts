@@ -27,7 +27,7 @@ figma.codegen.on("generate", async (event) => {
     return [
         {
             title: "Figma Scene",
-            code: JSON.stringify(await generate(event.node), null, 2),
+            code: JSON.stringify(await generate(event.node, true), null, 2),
             language: "JSON",
         },
         {

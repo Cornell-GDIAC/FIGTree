@@ -174,10 +174,11 @@ export function roundedRect(w : number, h : number,
  *
  * @param node      The image node
  * @param parent    The image parent
+ * @param root      True if root node, false otherwise
  *
  * @return a CUGL rectangle for the corresponding Figma rectangle
  */
-export function genRectangle(node: RectangleNode, parent: SceneNode) : CUGLNode {
+export function genRectangle(node: RectangleNode, parent: SceneNode, root: boolean = false) : CUGLNode {
     const fill = (node.fills as Paint[])[0] as SolidPaint;
     const fillCode = hexColor(fill);
     
@@ -197,7 +198,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode) : CUGLNode 
             polygon,
             color: fillCode,
             anchor: [0, 0],
-            position: [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
     };
@@ -271,7 +272,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode) : CUGLNode 
                 anchor: [0, 0],
                 angle: roundToFixed(node.rotation,2),
                 size: node.strokeAlign == "OUTSIDE" ? esize : fsize,
-                position: [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
                 visible: node.visible,
             },
             children,
@@ -294,11 +295,12 @@ export function genRectangle(node: RectangleNode, parent: SceneNode) : CUGLNode 
  *
  * @param node      The image node
  * @param parent    The image parent
+ * @param root      True if root node, false otherwise
  *
  * @return a CUGL ellipse for the corresponding Figma rectangle
  */
 
-export function genEllipse(node: EllipseNode, parent: SceneNode) : CUGLNode{
+export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean = false) : CUGLNode{
     const fill = (node.fills as Paint[])[0] as SolidPaint;
     const fillCode = hexColor(fill);
     
@@ -313,7 +315,7 @@ export function genEllipse(node: EllipseNode, parent: SceneNode) : CUGLNode{
             polygon,
             color: fillCode,
             anchor: [0, 0],
-            position: [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position: root? [0,0]:[roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
     };
@@ -379,7 +381,7 @@ export function genEllipse(node: EllipseNode, parent: SceneNode) : CUGLNode{
                 anchor: [0, 0],
                 angle: node.rotation,
                 size: node.strokeAlign == "OUTSIDE" ? esize : fsize,
-                position: [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
                 visible: node.visible,
             },
             children,
@@ -401,11 +403,12 @@ export function genEllipse(node: EllipseNode, parent: SceneNode) : CUGLNode{
  *
  * @param node      The image node
  * @param parent    The image parent
+ * @param root      True if root node, false otherwise
  *
  * @return a CUGL ellipse for the corresponding Figma rectangle
  */
 
-export async function genPolygon(node: PolygonNode, parent: SceneNode) {
+export async function genPolygon(node: PolygonNode, parent: SceneNode, root: boolean = false) {
 	const svg = await node.exportAsync({ format: 'SVG_STRING' })
     const ypos = parent.height ? parent.height - node.height - node.y : -node.y;
 
@@ -415,7 +418,7 @@ export async function genPolygon(node: PolygonNode, parent: SceneNode) {
         data: {
             commands: svg,
             anchor: [0, 0],
-            position: [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
             rotation: node.rotation
         },

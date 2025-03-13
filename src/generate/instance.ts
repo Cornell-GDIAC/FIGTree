@@ -36,10 +36,11 @@ import { genTextField } from "./text";
  *
  * @param node      The instance to convert
  * @param parent    The parent of the instance
+ * @param root      True if root node, false otherwise
  *
  * @return an instance node corresponding to the given instance
  */
-export async function genInstance(node: InstanceNode, parent: SceneNode) {
+export async function genInstance(node: InstanceNode, parent: SceneNode, root: boolean = false) {
     let tag = undefined;
     if (node.componentProperties) {
         for (const key in node.componentProperties) {
@@ -92,7 +93,7 @@ export async function genInstance(node: InstanceNode, parent: SceneNode) {
             anchor: [0, 0],
             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position: [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
         children,

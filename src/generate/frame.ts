@@ -33,10 +33,11 @@ import {
  *
  * @param node      The frame or group to convert
  * @param parent    The parent of the frame or group
+ * @param root      True if the root node, false otherwise
  *
  * @return a scene node corresponding to the given frame or group
  */
-export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode) {
+export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode, root: boolean = false) {
     // Layout the children
     let children = undefined;
     let format = undefined;
@@ -62,15 +63,8 @@ export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode) {
             type: "Anchored",
         } as CUGLFormatType;
     }
-    let ypos = undefined;
-    let xpos = undefined;
-    if (parent.type === "PAGE"){
-        ypos = 0;
-        xpos = 0;
-    } else{
-        ypos = parent.height ? parent.height - node.height - node.y : -node.y;
-        xpos = node.x
-    }
+
+    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const frameCode: CUGLBaseNode & CUGLChildrenMixin & CUGLLayoutMixin = {
         type: "Node",
         format,
@@ -78,7 +72,7 @@ export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode) {
             anchor: [0, 0],
             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position: [roundToFixed(xpos,2), roundToFixed(ypos,2)],
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
         children,

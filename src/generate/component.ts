@@ -36,10 +36,11 @@ import { genTextField } from "./text";
  *
  * @param node      The component to convert
  * @param parent    The parent of the component
+ * @param root      True if root node, false otherwise
  *
  * @return an component node corresponding to the given component
  */
-export async function genComponent(node: ComponentNode, parent: SceneNode) {
+export async function genComponent(node: ComponentNode, parent: SceneNode, root: boolean = false) {
     // Layout the children
     let children = undefined;
     let format = undefined;
@@ -74,7 +75,7 @@ export async function genComponent(node: ComponentNode, parent: SceneNode) {
             anchor: [0, 0],
             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position: [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
         children,
