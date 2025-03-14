@@ -4,7 +4,7 @@
  * Supported CUGL types in Figma
  *
  * Currently we have types the following nodes from scene2 in CUGL: Node, Image,
- * Poly, Path, Wire, Sprite, NinePatch, Label, Button, Progress, Slider, and
+ * Poly, Path, Wire, Sprite, NinePatch, Label, Button, Slider, and
  * Textfield.  However, not all of the these types are currently supported.
  * Set the "generate" package for the list of supported types.
  *
@@ -37,7 +37,7 @@ type CUGLNodeType =
     | CUGLLabelNode
     | CUGLTextFieldNode
     | CUGLImageNode
-    | CUGLNineSliceNode
+    | CUGLNinePatchNode
     | CUGLRectNode
     | CUGLPolyNode
     | CUGLPathNode
@@ -220,10 +220,10 @@ export type CUGLSVGNode = {
 };
 
 /**
- * A nine slice node
+ * A nine patch node
  */
-export type CUGLNineSliceNode = {
-    type: "Nine_Slice";
+export type CUGLNinePatchNode = {
+    type: "NinePatch";
     data: Data & {
         texture: string;
         interior: number[];

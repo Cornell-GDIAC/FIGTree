@@ -1,13 +1,13 @@
 /*
- * nine_slice.ts
+ * nine_patch.ts
  *
- * Module generating CUGL nine slices.
+ * Module generating CUGL nine patches.
  *
- * A nine slice in CUGL is a scene graph node with children that represent
- * all 9 slices of the image. 
+ * A nine patch in CUGL is a scene graph node with children that represent
+ * all 9 patches of the image. 
  *
- * We handle this through tagging. The nine slice is a instance or component
- * tagged with the name "nine_slice" as a property value. It is necessary
+ * We handle this through tagging. The nine patch is a instance or component
+ * tagged with the name "nine_patch" as a property value. It is necessary
  * to use this plugin to create them: 
  * https://www.figma.com/community/plugin/1219930483320755221.
  *
@@ -16,7 +16,7 @@
  */
 import { roundToFixed } from "../util";
 import {
-  CUGLNineSliceNode,
+  CUGLNinePatchNode,
   CUGLLayoutMixin,
   CUGLChildrenMixin,
   CUGLFormatType,
@@ -26,19 +26,18 @@ import {
     convertYAlign,
     convertLayoutMode,
 } from "../util";
-
-import { genChildrenByFloat, genChildrenByAnchor } from "./children";
+import { imageHashMap } from "./index";
 
 /**
- * Returns a scene node corresponding to the given nine slice.
+ * Returns a scene node corresponding to the given nine patch.
  *
- * @param node      The nine slice to convert
- * @param parent    The parent of the nine slice
+ * @param node      The nine patch to convert
+ * @param parent    The parent of the nine patch
  * @param root      True if the root node, false otherwise
  *
  * @return a scene node corresponding to the given frame or group
  */
-export async function genFrame(node: ComponentNode, parent: SceneNode, root: boolean = false) {
+export async function genNinePatch(node: ComponentNode, parent: SceneNode, root: boolean = false) {
     // Layout the children
     let children = undefined;
     let format = undefined;
@@ -64,16 +63,31 @@ export async function genFrame(node: ComponentNode, parent: SceneNode, root: boo
             type: "Anchored",
         } as CUGLFormatType;
     }
-    let slices = node.children
+
+    let texture = undefined;
+    if (node.componentPropertyDefinitions) {
+        for (const key in node.componentPropertyDefinitions) {
+            if (key.startsWith("Texture")) { // Find key that starts with "Texture"
+                texture = node.componentPropertyDefinitions[key].defaultValue as string;
+            }
+        }
+    }
+    if (!texture){
+        throw new Error("A nine patch must have a texture property"); 
+    }
+
+    let patches = node.children
     let center = undefined
-    if (slices.length === 9){
-        center = slices[4] as RectangleNode;
+    if (patches.length === 9){
+        center = patches[4] as RectangleNode;
+    } else if (patches.length === 3){
+        center = patches[1] as RectangleNode; 
     } else{
-        center = slices[1] as RectangleNode; 
+        throw new Error("A nine patch needs 3 or 9 children"); 
     }
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
-    const nineSliceCode: CUGLNineSliceNode & CUGLChildrenMixin & CUGLLayoutMixin = {
-        type: "Nine_Slice",
+    const ninePatchCode: CUGLNinePatchNode & CUGLChildrenMixin & CUGLLayoutMixin = {
+        type: "NinePatch",
         format,
         data: {
             anchor: [0, 0],
@@ -81,11 +95,15 @@ export async function genFrame(node: ComponentNode, parent: SceneNode, root: boo
             angle: node.rotation,
             position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
-            interior: [center.x, center.y],
-            texture: node.name,
+            interior: [center.x, center.y, center.width, center.height],
+            texture: texture,
         },
         children,
     };
     
-    return nineSliceCode;
+    if (!imageHashMap.has(texture)) {
+        imageHashMap.set(texture, texture);
+    }
+
+    return ninePatchCode;
 }
