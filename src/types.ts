@@ -37,6 +37,7 @@ type CUGLNodeType =
     | CUGLLabelNode
     | CUGLTextFieldNode
     | CUGLImageNode
+    | CUGLNineSliceNode
     | CUGLRectNode
     | CUGLPolyNode
     | CUGLPathNode
@@ -215,6 +216,17 @@ export type CUGLSVGNode = {
     type: "SVG";
     data: Data & {
         commands?: string;
+    };
+};
+
+/**
+ * A nine slice node
+ */
+export type CUGLNineSliceNode = {
+    type: "Nine_Slice";
+    data: Data & {
+        texture: string;
+        interior: number[];
     };
 };
 
