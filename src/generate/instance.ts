@@ -27,6 +27,7 @@ import {
 } from "./children";
 import { genButton } from "./button";
 import { genTextField } from "./text";
+import { genSlider } from "./slider";
 
 /**
  * Returns a instance node corresponding to the given frame
@@ -55,6 +56,8 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
                 return genButton(node, parent);
             case "textfield":
                 return genTextField(node.children[0] as TextNode, parent);
+            case "slider":
+                return genSlider(node, parent);
             default:
                 break;
         }

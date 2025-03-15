@@ -191,8 +191,6 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
                 }
             }
             // If button is not up or down, it is not added as a child.
-            console.log(correctSettings);
-            console.log(upOrDown);
             if (correctSettings && upOrDown){
                 newChildren.push(componentSet.children[ii] as ComponentNode);
                 buttonNames[upOrDown] = componentSet.children[ii].name;
@@ -226,7 +224,7 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
             orientation: convertLayoutMode(node.layoutMode),
         } as CUGLFormatType;
     } else {
-        children = await genChildrenByAnchor(node, newChildren);
+        children = await genChildrenByAnchor(node, newChildren, true);
         format = {
             type: "Anchored",
         } as CUGLFormatType;

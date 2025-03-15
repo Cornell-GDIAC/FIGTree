@@ -239,11 +239,13 @@ export async function layoutByAnchor(child: SceneNode, absolute: boolean, setPos
  * The names of the children exclude any preprocessing directives (e.g names
  * before the colon).
  * 
- * @param node  The parent node
+ * @param node          The parent node
+ * @param children      The custom children of this node
+ * @param reposition    Should these children be positioned at (0,0)
  *
  * @return a list of children arranged using a float layout
  */
-export async function genChildrenByAnchor(node: SceneNode, children? : SceneNode[]) : Promise<Record<string, AnchorChildType>> {
+export async function genChildrenByAnchor(node: SceneNode, children? : SceneNode[], reposition?: boolean) : Promise<Record<string, AnchorChildType>> {
     // TODO: Support toggling absolute via config
     const childNodes = children ?? node.children;
     
@@ -253,7 +255,7 @@ export async function genChildrenByAnchor(node: SceneNode, children? : SceneNode
     const generatedChildren = await Promise.all(
         childNodes.map(async (child:SceneNode) => ({
             name: child.name,
-            node: await layoutByAnchor(child,absolute,!!children),
+            node: await layoutByAnchor(child,absolute,reposition),
         })),
     );
     
