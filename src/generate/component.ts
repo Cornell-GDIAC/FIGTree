@@ -25,8 +25,9 @@ import {
     genChildrenByFloat, 
     genChildrenByAnchor 
 } from "./children";
-import { genButton } from "./button";
 import { genTextField } from "./text";
+import { genProgress } from "./progress";
+import { genNinePatch } from "./nine_patch";
 
 /**
  * Returns a component node corresponding to the given frame
@@ -42,6 +43,25 @@ import { genTextField } from "./text";
  */
 export async function genComponent(node: ComponentNode, parent: SceneNode, root: boolean = false) {
     // Layout the children
+    let tag = undefined;
+    if (node.componentPropertyDefinitions) {
+        for (const key in node.componentPropertyDefinitions) {
+            if (key.startsWith("Tag")) { // Find key that starts with "Tag"
+                tag = node.componentPropertyDefinitions[key].defaultValue;
+            }
+        }
+    }
+    if (typeof(tag) === 'string'){
+        switch(tag.toLowerCase()){
+            case "nine_patch":
+                return genNinePatch(node, parent);
+            case "textfield":
+                return genTextField(node.children[0] as TextNode, parent);
+            default:
+                break;
+        }
+    }
+
     let children = undefined;
     let format = undefined;
     if (node.layoutMode != "NONE") {

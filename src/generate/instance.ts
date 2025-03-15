@@ -28,6 +28,8 @@ import {
 import { genButton } from "./button";
 import { genTextField } from "./text";
 import { genSlider } from "./slider";
+import { genProgress } from "./progress";
+import { genNinePatch } from "./nine_patch";
 
 /**
  * Returns a instance node corresponding to the given frame
