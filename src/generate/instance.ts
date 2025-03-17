@@ -27,6 +27,7 @@ import {
 } from "./children";
 import { genButton } from "./button";
 import { genTextField } from "./text";
+import { genSlider } from "./slider";
 import { genProgress } from "./progress";
 import { genNinePatch } from "./nine_patch";
 
@@ -59,6 +60,8 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
                 return genNinePatch(node, parent);
             case "textfield":
                 return genTextField(node.children[0] as TextNode, parent);
+            case "slider":
+                return genSlider(node, parent);
             default:
                 break;
         }

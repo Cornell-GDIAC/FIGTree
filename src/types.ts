@@ -34,6 +34,7 @@ type CUGLRGBA = [number, number, number, number];
 type CUGLNodeType =
     | CUGLBaseNode
     | CUGLButtonNode
+    | CUGLSliderNode
     | CUGLLabelNode
     | CUGLTextFieldNode
     | CUGLImageNode
@@ -106,6 +107,19 @@ export type CUGLButtonNode = {
         downnode?: string | CUGLRGBA;
     };
 };
+
+export type CUGLSliderNode = {
+    type: "Slider";
+    data: Data & {
+        bounds: number[];
+        range?: number[];
+        value?: number;
+        tick?: number;
+        snap?: boolean;
+        knob?: string;
+        path?: string;
+    }
+}
 
 
 /**
