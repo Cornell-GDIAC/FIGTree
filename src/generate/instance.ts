@@ -55,6 +55,8 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
         switch(tag.toLowerCase()){
             case "button":
                 return genButton(node, parent);
+            case "nine_patch":
+                return genNinePatch(node, parent);
             case "textfield":
                 return genTextField(node.children[0] as TextNode, parent);
             default:

@@ -51,16 +51,6 @@ export async function genComponent(node: ComponentNode, parent: SceneNode, root:
             }
         }
     }
-    if (typeof(tag) === 'string'){
-        switch(tag.toLowerCase()){
-            case "nine_patch":
-                return genNinePatch(node, parent);
-            case "textfield":
-                return genTextField(node.children[0] as TextNode, parent);
-            default:
-                break;
-        }
-    }
 
     let children = undefined;
     let format = undefined;

@@ -37,12 +37,11 @@ import { imageHashMap } from "./index";
  *
  * @return a scene node corresponding to the given frame or group
  */
-export async function genNinePatch(node: ComponentNode, parent: SceneNode, root: boolean = false) {
+export async function genNinePatch(node: InstanceNode, parent: SceneNode, root: boolean = false) {
     // Layout the children
     let children = undefined;
     let format = undefined;
     if ("layoutMode" in node && node.layoutMode != "NONE") {
-        // children = await genChildrenByFloat(node);
         format = {
             type: "Float",
             x_alignment: convertXAlign(
@@ -58,26 +57,35 @@ export async function genNinePatch(node: ComponentNode, parent: SceneNode, root:
             orientation: convertLayoutMode(node.layoutMode),
         } as CUGLFormatType;
     } else {
-        // children = await genChildrenByAnchor(node);
         format = {
             type: "Anchored",
         } as CUGLFormatType;
     }
 
-    let texture = undefined;
-    if (node.componentPropertyDefinitions) {
-        for (const key in node.componentPropertyDefinitions) {
-            if (key.startsWith("Texture")) { // Find key that starts with "Texture"
-                texture = node.componentPropertyDefinitions[key].defaultValue as string;
-            }
-        }
-    }
-    if (!texture){
-        throw new Error("A nine patch must have a texture property"); 
+    let image = undefined;
+    let patch = undefined;
+
+    if (node.children.length != 2){
+        throw new Error("A nine patch must have a valid Image and Patch child")
     }
 
-    let patches = node.children
-    let center = undefined
+    try{
+        for (let i = 0; i<node.children.length; i++){
+            if (node.children[i].type === "RECTANGLE"){
+                image = node.children[i] as RectangleNode;
+            } else{
+                patch = node.children[i];
+            }
+        }
+    } catch{
+        throw new Error("A nine patch must have a valid Image and Patch child")
+    }
+
+    let texture = image.name;
+    let patches = patch.children;
+
+    let center = undefined;
+    let corner = patches[0];
     if (patches.length === 9){
         center = patches[4] as RectangleNode;
     } else if (patches.length === 3){
@@ -91,11 +99,12 @@ export async function genNinePatch(node: ComponentNode, parent: SceneNode, root:
         format,
         data: {
             anchor: [0, 0],
-            size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
+            size: [roundToFixed(patch.width,2), roundToFixed(patch.height,2)],
             angle: node.rotation,
             position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
-            interior: [center.x, center.y, center.width, center.height],
+            interior: [roundToFixed(corner.width,2), roundToFixed(corner.height,2), 
+                roundToFixed(center.width*(image.width/patch.width),2), roundToFixed(center.height*(image.height/patch.height),2)],
             texture: texture,
         },
         children,
