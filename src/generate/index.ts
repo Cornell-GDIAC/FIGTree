@@ -33,7 +33,7 @@ import { genFrame } from "./frame";
 import { genImage } from "./image";
 import { genInstance } from "./instance";
 import { genLabel } from "./text";
-import { genRectangle, genEllipse, genPolygon } from "./shape";
+import { genRectangle, genEllipse, genPolygon, genPath } from "./shape";
 import { genComponent } from "./component";
 
 // Map for exporting textures
@@ -102,6 +102,8 @@ export async function generateNode(node: SceneNode, root : boolean = false): Pro
         } else {
             return genRectangle(node, parent, root);
         }
+    case "LINE":
+        return genPath(node, parent, root); 
     case "ELLIPSE":
         return genEllipse(node, parent, root);
     case "INSTANCE":

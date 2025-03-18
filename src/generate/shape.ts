@@ -16,6 +16,7 @@ import {
 } from "../util";
 import {
     CUGLNode,
+    CUGLPathNode,
     CUGLPolyNode,
     CUGLSVGNode
 } from "../types"
@@ -163,6 +164,40 @@ export function roundedRect(w : number, h : number,
     return points;
 }
 
+/**
+ * Returns a CUGL path for the corresponding Figma line
+ * 
+ * This line may or may not have rounded corners. The node returned is a path
+ * node with width equal to the width of the line
+ * 
+ * @param node      The line node
+ * @param parent    The parent of the line node
+ * @param root      True if root node, false otherwise
+ * 
+ * @return a CUGL line for the corresponding Figma line
+ */
+export function genPath(node: LineNode, parent: SceneNode, root: boolean = false) : CUGLNode {
+
+    const line = (node.strokes as Paint[])[0] as SolidPaint;
+    const lineCode = hexColor(line);
+
+    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
+        const pathCode: CUGLPathNode = {
+            type: "Path",
+            data: {
+                anchor: [0, 0],
+                size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
+                angle: node.rotation,
+                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+                visible: node.visible,
+                stroke: node.strokeWeight as number,
+                joint: node.strokeJoin as string,
+                color: lineCode
+            },
+        };
+        
+        return pathCode;
+}
 
 /**
  * Returns a CUGL rectangle for the corresponding Figma rectangle
