@@ -170,6 +170,10 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
     let newChildren : ComponentNode[] = []; 
     let componentSet = node.mainComponent.parent
 
+    if (componentSet.type !== "COMPONENT_SET") {
+        throw new Error("Parent of the component is not a valid component set.");
+    }
+
     let buttonNames: Record<string, string> = {};
 
     for (let ii = 0; ii < componentSet.children.length; ii++) {

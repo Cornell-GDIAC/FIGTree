@@ -18,7 +18,7 @@ import {
     CUGLNode,
     CUGLPathNode,
     CUGLPolyNode,
-    CUGLSVGNode
+    CUGLRGBA
 } from "../types"
 import {
     AnchorChildType
@@ -165,6 +165,39 @@ export function roundedRect(w : number, h : number,
 }
 
 /**
+ * Parses an SVG in the form of a string into an array of numbers representing
+ * the vertices of the polygon. The final repeated vertex is not included in 
+ * the resulting number array.
+ * 
+ * @param svgPath   SVG of the polygon in the format of a string
+ * @returns         A number array representing the vertices of the polygon
+ */
+function parseSVGPath(svgPath: string): number[] {
+    const pathRegex = /M([\d.]+) ([\d.]+)|L([\d.]+) ([\d.]+)/g;
+    const vertices: number[] = [];
+
+    let match;
+    while ((match = pathRegex.exec(svgPath)) !== null) {
+        // Extract X and Y from both M and L commands
+        const x = parseFloat(match[1] || match[3]);
+        const y = parseFloat(match[2] || match[4]);
+        vertices.push(x, y);
+    }
+
+    // Remove duplicate last vertex if it repeats the first
+    if (
+        vertices.length >= 4 &&
+        vertices[0] === vertices[vertices.length - 2] &&
+        vertices[1] === vertices[vertices.length - 1]
+    ) {
+        vertices.splice(vertices.length - 2, 2);
+    }
+
+    return vertices;
+}
+
+
+/**
  * Returns a CUGL path for the corresponding Figma line
  * 
  * This line may or may not have rounded corners. The node returned is a path
@@ -177,26 +210,25 @@ export function roundedRect(w : number, h : number,
  * @return a CUGL line for the corresponding Figma line
  */
 export function genPath(node: LineNode, parent: SceneNode, root: boolean = false) : CUGLNode {
-
     const line = (node.strokes as Paint[])[0] as SolidPaint;
-    const lineCode = hexColor(line);
+    const color = hexColor(line);
 
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
         const pathCode: CUGLPathNode = {
             type: "Path",
             data: {
                 anchor: [0, 0],
-                size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
+                path: [0,0,roundToFixed(node.width,2), roundToFixed(node.height,2)],
                 angle: node.rotation,
                 position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
                 visible: node.visible,
                 stroke: node.strokeWeight as number,
                 joint: node.strokeJoin as string,
-                color: lineCode
+                color: color
             },
         };
         
-        return pathCode;
+    return pathCode;
 }
 
 /**
@@ -322,7 +354,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode, root: boole
 
 
 /**
- * Returns a CUGL ellipse for the corresponding Figma rectangle
+ * Returns a CUGL ellipse for the corresponding Figma ellipse
  *
  * The node returned is a polygon node if there is no stroke. Otherwise this 
  * function returns a scene node containing the fill as a polygon node, and 
@@ -332,7 +364,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode, root: boole
  * @param parent    The image parent
  * @param root      True if root node, false otherwise
  *
- * @return a CUGL ellipse for the corresponding Figma rectangle
+ * @return a CUGL ellipse for the corresponding Figma ellipse
  */
 
 export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean = false) : CUGLNode{
@@ -444,18 +476,22 @@ export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean =
  */
 
 export async function genPolygon(node: PolygonNode, parent: SceneNode, root: boolean = false) {
-	const svg = await node.exportAsync({ format: 'SVG_STRING' })
+	const pathData = node.fillGeometry[0].data;
     const ypos = parent.height ? parent.height - node.height - node.y : -node.y;
 
-    var svgCode: CUGLSVGNode;
+    const line = (node.fills as Paint[])[0] as SolidPaint;
+    const color = hexColor(line);
+
+    var svgCode: CUGLPolyNode;
     svgCode = {
-        type: "SVG",
+        type: "Solid",
         data: {
-            commands: svg,
-            anchor: [0, 0],
+            polygon: parseSVGPath(pathData),
+            anchor: [.5, .5],
             position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
-            rotation: node.rotation
+            color: color,
+            angle: node.rotation
         },
     };
     

@@ -25,7 +25,7 @@ type CUGLLBRT = [number, number, number, number];
 // A numeric range
 //type CUGLMinMax = [number, number];
 // An RGBA color as a numeric value
-type CUGLRGBA = [number, number, number, number];
+export type CUGLRGBA = [number, number, number, number];
 
 
 /**
@@ -42,8 +42,6 @@ type CUGLNodeType =
     | CUGLRectNode
     | CUGLPolyNode
     | CUGLPathNode
-    | CUGLSVGNode
-
 
 /**
  * The data component of a standard node.
@@ -204,6 +202,13 @@ export type CUGLPolyNode = {
         polygon?: number[] | Poly;
         color?: CUGLRGBA | string;
     };
+    layout?: {
+        x_offset?: number;
+        y_offset?: number;
+        absolute?: boolean;
+        x_anchor?: "left" | "center" | "right" | "fill";
+        y_anchor?: "bottom" | "middle" | "top" | "fill";
+    };
 };
 
 
@@ -220,16 +225,6 @@ export type CUGLPathNode = {
         stroke?: number;
         joint?: string;
         endcap?: string;
-    };
-};
-
-/**
- * A SVG node
- */
-export type CUGLSVGNode = {
-    type: "SVG";
-    data: Data & {
-        commands?: string;
     };
 };
 

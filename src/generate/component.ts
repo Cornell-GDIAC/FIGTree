@@ -42,16 +42,6 @@ import { genNinePatch } from "./nine_patch";
  * @return an component node corresponding to the given component
  */
 export async function genComponent(node: ComponentNode, parent: SceneNode, root: boolean = false) {
-    // Layout the children
-    let tag = undefined;
-    if (node.componentPropertyDefinitions) {
-        for (const key in node.componentPropertyDefinitions) {
-            if (key.startsWith("Tag")) { // Find key that starts with "Tag"
-                tag = node.componentPropertyDefinitions[key].defaultValue;
-            }
-        }
-    }
-
     let children = undefined;
     let format = undefined;
     if (node.layoutMode != "NONE") {
