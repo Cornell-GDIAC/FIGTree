@@ -62,30 +62,24 @@ export async function genNinePatch(node: InstanceNode, parent: SceneNode, root: 
         } as CUGLFormatType;
     }
 
-    let image = undefined;
-    let patch = undefined;
+    const [firstChild, secondChild] = node.children;
 
-    if (node.children.length != 2){
-        throw new Error("A nine patch must have a valid Image and Patch child")
+    if (!firstChild || !secondChild) {
+        throw new Error("A nine patch must have a valid Image and Patch child");
     }
 
-    try{
-        for (let i = 0; i<node.children.length; i++){
-            if (node.children[i].type === "RECTANGLE"){
-                image = node.children[i] as RectangleNode;
-            } else{
-                patch = node.children[i];
-            }
-        }
-    } catch{
-        throw new Error("A nine patch must have a valid Image and Patch child")
+    let image = firstChild.type === "RECTANGLE" ? firstChild as RectangleNode : secondChild as RectangleNode;
+    let patch = firstChild.type === "RECTANGLE" ? secondChild as InstanceNode : firstChild as InstanceNode;
+
+    if (!image || !patch) {
+        throw new Error("A nine patch must have a valid Image and Patch child");
     }
 
     let texture = image.name;
     let patches = patch.children;
 
     let center = undefined;
-    let corner = patches[0];
+    let corner = patches[0] as RectangleNode;
     if (patches.length === 9){
         center = patches[4] as RectangleNode;
     } else if (patches.length === 3){
