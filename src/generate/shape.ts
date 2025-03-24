@@ -18,7 +18,6 @@ import {
     CUGLNode,
     CUGLPathNode,
     CUGLPolyNode,
-    CUGLRGBA
 } from "../types"
 import {
     AnchorChildType
@@ -166,36 +165,190 @@ export function roundedRect(w : number, h : number,
 
 /**
  * Parses an SVG in the form of a string into an array of numbers representing
- * the vertices of the polygon. The final repeated vertex is not included in 
- * the resulting number array.
+ * the vertices of the polygon, approximating curves using additional vertices. 
+ * The vertices are flipped to match the position origin in CUGL. The final 
+ * repeated vertex is not included in the resulting number array.
  * 
- * @param svgPath   SVG of the polygon in the format of a string
- * @returns         A number array representing the vertices of the polygon
+ * @param svgPath         SVG of the polygon in the format of a string
+ * @returns               A number array representing the vertices of the polygon
+ * and the left most x value used for positioning.
  */
-function parseSVGPath(svgPath: string): number[] {
-    const pathRegex = /M([\d.]+) ([\d.]+)|L([\d.]+) ([\d.]+)/g;
+function parseSVGPath(svgPath: string): {vertices: number[], leftMostX: number} {
+    const pathRegex = /M([\d.]+) ([\d.]+)|L([\d.]+) ([\d.]+)|C([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)|Q([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)/g;
     const vertices: number[] = [];
-
     let match;
+    let currentX = 0, currentY = 0;
+
     while ((match = pathRegex.exec(svgPath)) !== null) {
-        // Extract X and Y from both M and L commands
-        const x = parseFloat(match[1] || match[3]);
-        const y = parseFloat(match[2] || match[4]);
-        vertices.push(x, y);
+        // Extract command and points
+        if (match[1] && match[2]) {
+            // M command (move to)
+            currentX = parseFloat(match[1]);
+            currentY = parseFloat(match[2]);
+            vertices.push(currentX, currentY);
+        } else if (match[3] && match[4]) {
+            // L command (line to)
+            currentX = parseFloat(match[3]);
+            currentY = parseFloat(match[4]);
+            vertices.push(currentX, currentY);
+        } else if (match[5] && match[6] && match[7] && match[8] && match[9] && match[10]) {
+            // C command (cubic Bezier curve)
+            const cx1 = parseFloat(match[5]);
+            const cy1 = parseFloat(match[6]);
+            const cx2 = parseFloat(match[7]);
+            const cy2 = parseFloat(match[8]);
+            const x = parseFloat(match[9]);
+            const y = parseFloat(match[10]);
+
+            const dx1 = cx1 - currentX;
+            const dy1 = cy1 - currentY;
+            const dx2 = cx2 - cx1;
+            const dy2 = cy2 - cy1;
+            const dx3 = x - cx2;
+            const dy3 = y - cy2;
+
+            const avgRadius = (Math.sqrt(dx1*dx1 + dy1*dy1) + 
+                            Math.sqrt(dx2*dx2 + dy2*dy2) + 
+                            Math.sqrt(dx3*dx3 + dy3*dy3)) / 3;
+
+            const totalAngle = Math.PI; // Default to half circle
+
+            const segments = curveSegs(avgRadius, totalAngle);
+            const step = 1.0 / segments;
+
+            // Approximate cubic Bezier curve with small line segments
+            for (let t = 0; t <= 1; t += step) {
+                const xPos = (1 - t) ** 3 * currentX + 3 * (1 - t) ** 2 * t * cx1 + 3 * (1 - t) * t ** 2 * cx2 + t ** 3 * x;
+                const yPos = (1 - t) ** 3 * currentY + 3 * (1 - t) ** 2 * t * cy1 + 3 * (1 - t) * t ** 2 * cy2 + t ** 3 * y;
+                vertices.push(xPos, yPos);
+            }
+            currentX = x;
+            currentY = y;
+        } else if (match[11] && match[12] && match[13] && match[14]) {
+            // Q command (quadratic Bezier curve)
+            const cx = parseFloat(match[11]);
+            const cy = parseFloat(match[12]);
+            const x = parseFloat(match[13]);
+            const y = parseFloat(match[14]);
+            
+            const dx1 = cx - currentX;
+            const dy1 = cy - currentY;
+            const dx2 = x - cx;
+            const dy2 = y - cy;
+
+            const avgRadius = (Math.sqrt(dx1*dx1 + dy1*dy1) + 
+                            Math.sqrt(dx2*dx2 + dy2*dy2)) / 2;
+
+            const totalAngle = Math.PI; // Default to half circle
+
+            const segments = curveSegs(avgRadius, totalAngle);
+            const step = 1.0 / segments;
+
+            // Approximate quadratic Bezier curve with small line segments
+            for (let t = 0; t <= 1; t += step) {
+                const xPos = (1 - t) ** 2 * currentX + 2 * (1 - t) * t * cx + t ** 2 * x;
+                const yPos = (1 - t) ** 2 * currentY + 2 * (1 - t) * t * cy + t ** 2 * y;
+                vertices.push(xPos, yPos);
+            }
+            currentX = x;
+            currentY = y;
+        }
     }
 
-    // Remove duplicate last vertex if it repeats the first
-    if (
-        vertices.length >= 4 &&
-        vertices[0] === vertices[vertices.length - 2] &&
-        vertices[1] === vertices[vertices.length - 1]
-    ) {
-        vertices.splice(vertices.length - 2, 2);
+    removeConsecutiveDuplicates(vertices);
+
+    // Determine bounding box to flip y-values relative to shape
+    let minY = Infinity, maxY = -Infinity;
+    let minX = Infinity;
+    for (let i = 1; i < vertices.length; i += 2) {
+        const y = vertices[i];
+        const x = vertices[i - 1];
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
     }
 
-    return vertices;
+    for (let i = 1; i < vertices.length; i += 2) {
+        vertices[i] = maxY - (vertices[i] - minY);
+    }
+
+    if (!isCounterClockwise(vertices)) {
+        reverseVertices(vertices);
+    }
+
+    return {vertices, leftMostX: minX};
 }
 
+/**
+ * Removes consecutive duplicates from an array of vertices in place. 
+ * Consecutive includes wrapping around from the end of the array to the 
+ * beginning.
+ * 
+ * @param vertices      The array of vertices to remove duplicates from
+ */
+function removeConsecutiveDuplicates(vertices: number[]) {
+    const newVertices: number[] = [];
+    
+    for (let i = 0; i < vertices.length - 2; i += 2) {
+        const x1 = vertices[i], y1 = vertices[i + 1];
+        const x2 = vertices[i + 2], y2 = vertices[i + 3];
+
+        if (x1 !== x2 || y1 !== y2) {
+            newVertices.push(x1, y1);
+        }
+    }
+
+    const len = vertices.length;
+    if (
+        len >= 2 &&
+        (newVertices.length === 0 ||
+            vertices[len - 2] !== newVertices[newVertices.length - 2] ||
+            vertices[len - 1] !== newVertices[newVertices.length - 1])
+    ) {
+        if (
+            newVertices.length >= 2 &&
+            vertices[len - 2] === newVertices[0] &&
+            vertices[len - 1] === newVertices[1]
+        ) {
+        } else {
+            newVertices.push(vertices[len - 2], vertices[len - 1]);
+        }
+    }
+
+    vertices.length = 0;
+    vertices.push(...newVertices);
+}
+
+/**
+ * Checks if the given vertices, of the format (x1,y1,x2,y2,x3,y3,...), are
+ * in counter clockwise order.
+ * 
+ * @param vertices      The array representing the vertices of a polygon
+ * @returns             True if counter clockwise, false otherwise
+ */
+function isCounterClockwise(vertices: number[]): boolean {
+    let sum = 0;
+    for (let i = 0; i < vertices.length; i += 2) {
+        const x1 = vertices[i];
+        const y1 = vertices[i + 1];
+        const x2 = vertices[(i + 2) % vertices.length];
+        const y2 = vertices[(i + 3) % vertices.length];
+        sum += (x2 - x1) * (y2 + y1);
+    }
+    return sum < 0;
+}
+
+/**
+ * Reverses vertices, in the format (x1,y1,x2,y2,x3,y3,...), in place.
+ * 
+ * @param vertices      The array representing the vertices of a polygon
+ */
+function reverseVertices(vertices: number[]): void {
+    for (let i = 0, j = vertices.length - 2; i < j; i += 2, j -= 2) {
+        [vertices[i], vertices[j]] = [vertices[j], vertices[i]];
+        [vertices[i + 1], vertices[j + 1]] = [vertices[j + 1], vertices[i + 1]];
+    }
+}
 
 /**
  * Returns a CUGL path for the corresponding Figma line
@@ -482,13 +635,15 @@ export async function genPolygon(node: PolygonNode, parent: SceneNode, root: boo
     const line = (node.fills as Paint[])[0] as SolidPaint;
     const color = hexColor(line);
 
+    const { vertices, leftMostX } = parseSVGPath(pathData);
+
     var svgCode: CUGLPolyNode;
     svgCode = {
         type: "Solid",
         data: {
-            polygon: parseSVGPath(pathData),
+            polygon: vertices,
             anchor: [.5, .5],
-            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position: root? [0,0] : [roundToFixed(node.x + leftMostX,2), roundToFixed(ypos,2)],
             visible: node.visible,
             color: color,
             angle: node.rotation

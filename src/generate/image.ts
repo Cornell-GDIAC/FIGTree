@@ -38,8 +38,6 @@ export function genImage(node: RectangleNode, parent: SceneNode, root: boolean =
         throw new Error("Unsupported rectangular object in Figma graph");
     }
     
-    console.log(node.fills);
-    
     const imageFill = node.fills[0];
     const imageHash = imageFill.imageHash!;
     let texture = node.name;

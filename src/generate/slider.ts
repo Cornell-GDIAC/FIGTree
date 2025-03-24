@@ -81,7 +81,6 @@ export async function genSlider(node: InstanceNode, parent: SceneNode) {
         }
         newChildren.push(node.children[ii]);
     }
-    console.log(newChildren);
 
     let additionalProperties = new Map<string, any>();
     for (const key in node.componentProperties) {
