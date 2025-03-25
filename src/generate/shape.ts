@@ -174,7 +174,7 @@ export function roundedRect(w : number, h : number,
  * and the left most x value used for positioning.
  */
 function parseSVGPath(svgPath: string): {vertices: number[], leftMostX: number} {
-    const pathRegex = /M([\d.]+) ([\d.]+)|L([\d.]+) ([\d.]+)|C([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)|Q([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)/g;
+    const pathRegex = /M(-?[\d.]+) (-?[\d.]+)|L(-?[\d.]+) (-?[\d.]+)|C(-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+)|Q(-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+)/g;
     const vertices: number[] = [];
     let match;
     let currentX = 0, currentY = 0;
@@ -293,7 +293,7 @@ function removeConsecutiveDuplicates(vertices: number[]) {
         const x1 = vertices[i], y1 = vertices[i + 1];
         const x2 = vertices[i + 2], y2 = vertices[i + 3];
 
-        if (x1 !== x2 || y1 !== y2) {
+        if (Math.abs(x1-x2) > 0.01 || Math.abs(y1-y2) > 0.01) {
             newVertices.push(x1, y1);
         }
     }
@@ -351,6 +351,18 @@ function reverseVertices(vertices: number[]): void {
 }
 
 /**
+ * Cleans an SVG of the form 'M 0 50 L 100 100 L 200 300 Z' to the form 
+ * 'M0 50 L100 100 L200 300 Z'
+ * 
+ * @param svgString         The SVG string to clean up
+ * @returns 
+ */
+function cleanSVG(svgString: string): string {
+    const svgCleaned = svgString.replace(/([a-zA-Z])\s+([0-9-])/g, '$1$2');
+    return svgCleaned;
+}
+
+/**
  * Returns a CUGL path for the corresponding Figma line
  * 
  * This line may or may not have rounded corners. The node returned is a path
@@ -370,8 +382,43 @@ export function genPath(node: LineNode, parent: SceneNode, root: boolean = false
         const pathCode: CUGLPathNode = {
             type: "Path",
             data: {
-                anchor: [0, 0],
+                anchor: [.5, .5],
                 path: [0,0,roundToFixed(node.width,2), roundToFixed(node.height,2)],
+                angle: node.rotation,
+                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+                visible: node.visible,
+                stroke: node.strokeWeight as number,
+                joint: node.strokeJoin as string,
+                color: color
+            },
+        };
+        
+    return pathCode;
+}
+
+/**
+ * Returns a CUGL path node for the corresponding Figma vector
+ * 
+ * This vector may or may not have roudned corners. The node returned is a path
+ * node with width equal to the width of the vector.
+ * 
+ * @param node          The figma vector node
+ * @param parent        The parent of the vector node
+ * @param root          True if the root node, false otherwise.
+ * @returns 
+ */
+export function genVector(node: VectorNode, parent: SceneNode, root: boolean = false): CUGLNode{
+    const line = (node.strokes as Paint[])[0] as SolidPaint;
+    const color = hexColor(line);
+
+    const pathData = cleanSVG(node.vectorPaths[0].data);
+    const parsedPath = parseSVGPath(pathData);
+    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
+        const pathCode: CUGLPathNode = {
+            type: "Path",
+            data: {
+                anchor: [.5, .5],
+                path: parsedPath.vertices,
                 angle: node.rotation,
                 position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
                 visible: node.visible,
@@ -517,7 +564,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode, root: boole
  * @param parent    The image parent
  * @param root      True if root node, false otherwise
  *
- * @return a CUGL ellipse for the corresponding Figma ellipse
+ * @return a CUGL rectangle for the corresponding Figma ellipse
  */
 
 export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean = false) : CUGLNode{
@@ -615,20 +662,57 @@ export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean =
 }
 
 /**
- * Returns a CUGL polygon for the corresponding Figma rectangle
+ * Returns a CUGL polygon for the corresponding Figma polygon
  *
- * The node returned is a polygon node if there is no stroke. Otherwise this 
- * function returns a scene node containing the fill as a polygon node, and 
- * the border as a path node.
+ * The node returned is a polygon node using the parsed SVG path data with the
+ * correct color and rotation applied.
  *
- * @param node      The image node
- * @param parent    The image parent
+ * @param node      The polygon node
+ * @param parent    The polygon parent
  * @param root      True if root node, false otherwise
  *
- * @return a CUGL ellipse for the corresponding Figma rectangle
+ * @return a CUGL polygon for the corresponding Figma polygon
  */
 
 export async function genPolygon(node: PolygonNode, parent: SceneNode, root: boolean = false) {
+	const pathData = node.fillGeometry[0].data;
+    const ypos = parent.height ? parent.height - node.height - node.y : -node.y;
+
+    const line = (node.fills as Paint[])[0] as SolidPaint;
+    const color = hexColor(line);
+
+    const { vertices, leftMostX } = parseSVGPath(pathData);
+
+    var svgCode: CUGLPolyNode;
+    svgCode = {
+        type: "Solid",
+        data: {
+            polygon: vertices,
+            anchor: [.5, .5],
+            position: root? [0,0] : [roundToFixed(node.x + leftMostX,2), roundToFixed(ypos,2)],
+            visible: node.visible,
+            color: color,
+            angle: node.rotation
+        },
+    };
+    
+    return svgCode;
+}
+
+/**
+ * Returns a CUGL polygon for the corresponding Figma vector polygon
+ *
+ * The node returned is a complex polygon node with the path defined as the 
+ * parsed SVG commands. The color and rotation of the polygon are also applied.
+ *
+ * @param node      The vector node
+ * @param parent    The vector parent
+ * @param root      True if root node, false otherwise
+ *
+ * @return a CUGL polygon for the corresponding Figma vector polygon
+ */
+
+export async function genVectorPolygon(node: VectorNode, parent: SceneNode, root: boolean = false) {
 	const pathData = node.fillGeometry[0].data;
     const ypos = parent.height ? parent.height - node.height - node.y : -node.y;
 

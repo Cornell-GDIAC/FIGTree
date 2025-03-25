@@ -33,7 +33,7 @@ import { genFrame } from "./frame";
 import { genImage } from "./image";
 import { genInstance } from "./instance";
 import { genLabel } from "./text";
-import { genRectangle, genEllipse, genPolygon, genPath } from "./shape";
+import { genRectangle, genEllipse, genPolygon, genPath, genVector, genVectorPolygon } from "./shape";
 import { genComponent } from "./component";
 
 // Map for exporting textures
@@ -41,36 +41,6 @@ export let imageHashMap = new Map<string, string>();
 
 // Map for exporting fonts
 export let fontHashMap = new Map<string, number>();
-
-
-/**
- * Returns true if the string is a valid identifier name
- *
- * @param str	The string to test
- *
- * @return true if the string is a valid identifier name
- */
-function isIdentifier(str:string) {
-    return /^[a-zA-Z_][a-zA-Z_0-9]*$/.test(str);
-}
-
-/**
- * Returns true if the string is a valid identifier name
- *
- * @param str	The string to test
- *
- * @return true if the string is a valid identifier name
- */
-function makeIdentifier(str:string) {
-	const regex = /^[a-zA-Z_0-9]*$/;
-	var result = str.replace(regex,'_');
-	var firstChar = result.charAt(0);
-	if (firstChar < '0' || firstChar > '9') {
-		result = "_"+result;
-	}
-	return result;
-}
-
 
 /**
  * Returns a CUGL node for the given Figma node
@@ -99,11 +69,15 @@ export async function generateNode(node: SceneNode, root : boolean = false): Pro
     case "RECTANGLE":
         if (node.fills !== figma.mixed && node.fills?.[0]?.type === "IMAGE") {
             return genImage(node, parent, root);
-        } else {
-            return genRectangle(node, parent, root);
         }
+        return genRectangle(node, parent, root);
     case "LINE":
         return genPath(node, parent, root); 
+    case "VECTOR":
+        if (node.fillGeometry.length > 0) {
+            return genVectorPolygon(node, parent, root);
+        }
+        return genVector(node, parent, root);
     case "ELLIPSE":
         return genEllipse(node, parent, root);
     case "INSTANCE":
