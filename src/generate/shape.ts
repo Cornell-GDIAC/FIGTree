@@ -293,7 +293,7 @@ function removeConsecutiveDuplicates(vertices: number[]) {
         const x1 = vertices[i], y1 = vertices[i + 1];
         const x2 = vertices[i + 2], y2 = vertices[i + 3];
 
-        if (Math.abs(x1-x2) > 0.01 || Math.abs(y1-y2) > 0.01) {
+        if (Math.abs(x1-x2) > 0.001 || Math.abs(y1-y2) > 0.001) {
             newVertices.push(x1, y1);
         }
     }
