@@ -67,11 +67,10 @@ export async function genProgress(node: InstanceNode | ComponentNode, parent: Sc
         } as CUGLFormatType;
     } else {
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         } as CUGLFormatType;
     }
     
-    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const progressCode: CUGLProgressNode & CUGLChildrenMixin & CUGLLayoutMixin = {
         type: "Progress",
         format,
@@ -79,7 +78,7 @@ export async function genProgress(node: InstanceNode | ComponentNode, parent: Sc
             anchor: [0, 0],
             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position:[roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position:[roundToFixed(node.x,2), roundToFixed(node.y,2)],
             visible: node.visible,
             background: node.name + "_background",
             foreground: node.name + "_foreground",

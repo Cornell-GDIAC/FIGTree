@@ -110,11 +110,10 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
     } else {
         children = await genChildrenByAnchor(node);
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         } as CUGLFormatType;
     }
     
-    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const buttonCode: CUGLButtonNode & CUGLChildrenMixin & CUGLLayoutMixin = {
         type: "Button",
         format,
@@ -122,7 +121,7 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
             anchor: [0, 0],
             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position:[roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position:[roundToFixed(node.x,2), roundToFixed(node.y,2)],
             visible: node.visible,
             upnode: firstButton,
         },
@@ -230,11 +229,10 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
     } else {
         children = await genChildrenByAnchor(node, newChildren, true);
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         } as CUGLFormatType;
     }
     
-    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const buttonCode: CUGLButtonNode & CUGLChildrenMixin & CUGLLayoutMixin = {
         type: "Button",
         format,
@@ -242,7 +240,7 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
             anchor: [0, 0],
             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position:[roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position:[roundToFixed(node.x,2), roundToFixed(node.y,2)],
             visible: node.visible,
             upnode: buttonNames["up"],
         },

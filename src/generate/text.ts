@@ -39,13 +39,12 @@ export function genLabel(node: TextNode, parent: SceneNode, root: boolean = fals
     const fkey = fname+fstyle+fsize;
     
     // TODO: Not sure how to get padding
-    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     let textCode: CUGLLabelNode & CUGLChildrenMixin = {
         type: "Label",
         data: {
             anchor: [0, 0],
             size: [node.width, node.height],
-            position: root? [0,0] : [node.x, ypos],
+            position: root? [0,0] : [node.x, node.y],
             angle: node.rotation,
             visible: node.visible,
             font: fkey,
@@ -98,13 +97,12 @@ export function genTextField(node: TextNode, parent: SceneNode) {
     const fkey = fname+fstyle+fsize;
     
     // TODO: Not sure how to get padding
-    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     let textCode: CUGLTextFieldNode & CUGLChildrenMixin = {
         type: "TextField",
         data: {
             anchor: [0, 0],
             size: [node.width, node.height],
-            position: [node.x, ypos],
+            position: [node.x, node.y],
             visible: node.visible,
             font: fkey,
             text: node.characters,
