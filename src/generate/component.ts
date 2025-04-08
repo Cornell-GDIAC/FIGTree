@@ -63,7 +63,7 @@ export async function genComponent(node: ComponentNode, parent: SceneNode, root:
     } else {
         children = await genChildrenByAnchor(node);
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         }as CUGLFormatType;
     }
     

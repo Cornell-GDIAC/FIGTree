@@ -88,7 +88,7 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
     } else {
         children = await genChildrenByAnchor(node);
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         }as CUGLFormatType;
     }
     

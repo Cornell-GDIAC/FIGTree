@@ -110,7 +110,7 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
     } else {
         children = await genChildrenByAnchor(node);
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         } as CUGLFormatType;
     }
     
@@ -230,7 +230,7 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
     } else {
         children = await genChildrenByAnchor(node, newChildren, true);
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         } as CUGLFormatType;
     }
     

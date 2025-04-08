@@ -109,7 +109,7 @@ export async function genSlider(node: InstanceNode, parent: SceneNode) {
     } else {
         children = await genChildrenByAnchor(node, newChildren);
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         } as CUGLFormatType;
     }
     

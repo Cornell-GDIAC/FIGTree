@@ -60,7 +60,7 @@ export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode, r
     } else {
         children = await genChildrenByAnchor(node);
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         } as CUGLFormatType;
     }
 

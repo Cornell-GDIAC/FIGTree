@@ -58,7 +58,7 @@ export async function genNinePatch(node: InstanceNode, parent: SceneNode, root: 
         } as CUGLFormatType;
     } else {
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         } as CUGLFormatType;
     }
 

@@ -67,7 +67,7 @@ export async function genProgress(node: InstanceNode | ComponentNode, parent: Sc
         } as CUGLFormatType;
     } else {
         format = {
-            type: "Anchored",
+            type: "FigmaAnchored",
         } as CUGLFormatType;
     }
     
