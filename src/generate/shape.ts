@@ -258,19 +258,19 @@ function parseSVGPath(svgPath: string): {vertices: number[], leftMostX: number} 
     removeConsecutiveDuplicates(vertices);
 
     // Determine bounding box to flip y-values relative to shape
-    // let minY = Infinity, maxY = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
     let minX = Infinity;
-    // for (let i = 1; i < vertices.length; i += 2) {
-    //     const y = vertices[i];
-    //     const x = vertices[i - 1];
-    //     if (x < minX) minX = x;
-    //     if (y < minY) minY = y;
-    //     if (y > maxY) maxY = y;
-    // }
+    for (let i = 1; i < vertices.length; i += 2) {
+        const y = vertices[i];
+        const x = vertices[i - 1];
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+    }
 
-    // for (let i = 1; i < vertices.length; i += 2) {
-    //     vertices[i] = maxY - (vertices[i] - minY);
-    // }
+    for (let i = 1; i < vertices.length; i += 2) {
+        vertices[i] = maxY - (vertices[i] - minY);
+    }
 
     if (!isCounterClockwise(vertices)) {
         reverseVertices(vertices);
