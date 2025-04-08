@@ -109,10 +109,11 @@ export async function genSlider(node: InstanceNode, parent: SceneNode) {
     } else {
         children = await genChildrenByAnchor(node, newChildren);
         format = {
-            type: "FigmaAnchored",
+            type: "Anchored",
         } as CUGLFormatType;
     }
     
+    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const sliderCode: CUGLSliderNode & CUGLChildrenMixin & CUGLLayoutMixin = {
         type: "Slider",
         format,
@@ -120,7 +121,7 @@ export async function genSlider(node: InstanceNode, parent: SceneNode) {
             anchor: [0, 0],
             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position:[roundToFixed(node.x,2), roundToFixed(node.y,2)],
+            position:[roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
             bounds: bounds,
         },

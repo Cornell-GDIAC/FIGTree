@@ -127,7 +127,8 @@ export type AnchorChildType = CUGLNode & CUGLAnchoredLayoutMixin["children"]["ke
 /**
  * Applies layout settings to a child in an anchor layout.
  *
- * Anchor layout is the default (non-auto) layout in Figma. By default, offsets are
+ * Anchor layout is the default (non-auto) layout in Figma. For the most
+ * part we only need to change coordinate systems. By default, offsets are
  * measured in percentages. However, if absolute is true, they will be 
  * measured in pixels instead.
  * 
@@ -142,52 +143,84 @@ export async function layoutByAnchor(child: SceneNode, absolute: boolean, setPos
     const parent = child.parent as SceneNode;
     const constraints = "constraints" in child ? child.constraints : undefined;
     
-    const x_constraint = convertXAnchor(constraints?.horizontal);
-    const y_constraint = convertYAnchor(constraints?.vertical);
+    const [anchor_x, x_anchor] = convertXAnchor(constraints?.horizontal);
+    const [anchor_y, y_anchor] = convertYAnchor(constraints?.vertical);
     const cuglChild = await generateNode(child);
-    // cuglChild.data.anchor = [anchor_x, anchor_y];
+    cuglChild.data.anchor = [anchor_x, anchor_y];
     
     let [x_offset, y_offset] = cuglChild.data.position || [0, 0];
     
-    cuglChild.data.anchor = [0.5, 0.5];
-    [x_offset, y_offset] = getCenter(child);
-    
-    // switch (x_anchor) {
-    // case "right":
-    //     x_offset -= parent.width;
-    //     break;
-    // case "center":
-    // case "fill":
-    //     x_offset -= parent.width/2;
-    //     break;
-    // case "left":
-    //     break;
-    // }
+    if (child.rotation != 0) {
+        // This is not quite accurate, but neither is rotational layout
+        cuglChild.data.anchor = [0.5, 0.5];
+        [x_offset, y_offset] = getCenter(child);
+        
+        y_offset = parent.height ? parent.height - y_offset : -y_offset;
+        switch (x_anchor) {
+        case "right":
+            x_offset -= parent.width;
+            break;
+        case "center":
+        case "fill":
+            x_offset -= parent.width/2;
+            break;
+        case "left":
+            break;
+        }
 
-    // switch (y_anchor) {
-    // case "top":
-    //     y_offset -= parent.height;
-    //     break;
-    // case "middle":
-    // case "fill":
-    //     y_offset -= parent.height/2;
-    //     break;
-    // case "bottom":
-    //     break;
-    // }
+        switch (y_anchor) {
+        case "top":
+            y_offset -= parent.height;
+            break;
+        case "middle":
+        case "fill":
+            y_offset -= parent.height/2;
+            break;
+        case "bottom":
+            break;
+        }
+    } else {
+        switch (x_anchor) {
+        case "center":
+            x_offset += child.width/2;
+            x_offset -= parent.width/2;
+            break;
+        case "right":
+            x_offset += child.width;
+            x_offset -= parent.width;
+            break;
+        case "left":
+        case "fill":
+            break;
+        }
+
+        switch (y_anchor) {
+        case "middle":
+            y_offset += child.height/2;
+            y_offset -= parent.height/2;
+            break;
+        case "top":
+            y_offset += child.height;
+            y_offset -= parent.height;
+            break;
+        case "bottom":
+        case "fill":
+            break;
+        }
+    }
     
     if (!absolute) {
         x_offset /= parent.width;
         y_offset /= parent.height;
     }
     
-    x_offset = setPosition? 0 : roundToFixed(x_offset,3);
-    y_offset = setPosition? 0 : roundToFixed(y_offset,3);
+    x_offset = setPosition? 0 : roundToFixed(x_offset,2);
+    y_offset = setPosition? 0 : roundToFixed(y_offset,2);
     return {
         ...cuglChild,
         layout: {
-            x_anchor: x_constraint,
-            y_anchor: y_constraint,
+            x_anchor,
+            y_anchor,
             absolute,
             x_offset,
             y_offset,

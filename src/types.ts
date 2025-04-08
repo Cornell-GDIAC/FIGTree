@@ -241,7 +241,7 @@ export type CUGLNinePatchNode = {
 
 
 export type CUGLFormatType = {
-    type: "Float" | "FigmaAnchored" | "FigmaFloat";
+    type: "Anchored" | "Float";
     orientation?: "horizontal" | "vertical";
     x_alignment?: "left" | "center" | "right";
     y_alignment?: "bottom" | "middle" | "top";

@@ -88,10 +88,11 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
     } else {
         children = await genChildrenByAnchor(node);
         format = {
-            type: "FigmaAnchored",
+            type: "Anchored",
         }as CUGLFormatType;
     }
     
+    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const frameCode: CUGLBaseNode & CUGLChildrenMixin & CUGLLayoutMixin = {
         type: "Node",
         format,
@@ -99,7 +100,7 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
             anchor: [0, 0],
             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(node.y,2)],
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
         children,

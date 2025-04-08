@@ -378,13 +378,14 @@ export function genPath(node: LineNode, parent: SceneNode, root: boolean = false
     const line = (node.strokes as Paint[])[0] as SolidPaint;
     const color = hexColor(line);
 
+    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
         const pathCode: CUGLPathNode = {
             type: "Path",
             data: {
                 anchor: [.5, .5],
                 path: [0,0,roundToFixed(node.width,2), roundToFixed(node.height,2)],
                 angle: node.rotation,
-                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(node.y,2)],
+                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
                 visible: node.visible,
                 stroke: node.strokeWeight as number,
                 joint: node.strokeJoin as string,
@@ -412,13 +413,14 @@ export function genVector(node: VectorNode, parent: SceneNode, root: boolean = f
 
     const pathData = cleanSVG(node.vectorPaths[0].data);
     const parsedPath = parseSVGPath(pathData);
+    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
         const pathCode: CUGLPathNode = {
             type: "Path",
             data: {
                 anchor: [.5, .5],
                 path: parsedPath.vertices,
                 angle: node.rotation,
-                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(node.y,2)],
+                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
                 visible: node.visible,
                 stroke: node.strokeWeight as number,
                 joint: node.strokeJoin as string,
@@ -453,6 +455,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode, root: boole
     let br = node.topRightRadius;
     let bl = node.topLeftRadius;
     
+    const ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const polygon = roundedRect(node.width,node.height,tl,tr,br,bl);
     
     var polyCode: CUGLPolyNode;
@@ -462,7 +465,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode, root: boole
             polygon,
             color: fillCode,
             anchor: [0, 0],
-            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(node.y,2)],
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
     };
@@ -530,13 +533,13 @@ export function genRectangle(node: RectangleNode, parent: SceneNode, root: boole
         let groupCode = {
             type: "Node",
             format: {
-                type: "FigmaAnchored",
+                type: "Anchored",
             },
             data: {
                 anchor: [0, 0],
                 angle: roundToFixed(node.rotation,2),
                 size: node.strokeAlign == "OUTSIDE" ? esize : fsize,
-                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(node.y,2)],
+                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
                 visible: node.visible,
             },
             children,
@@ -569,6 +572,7 @@ export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean =
     const fillCode = hexColor(fill);
     
     const segs = curveSegs(Math.max(node.width/2.0,node.height/2.0), 2.0*Math.PI);
+    const ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const polygon = ellipse(node.width,node.height,segs);
     
     var polyCode: CUGLPolyNode;
@@ -578,7 +582,7 @@ export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean =
             polygon,
             color: fillCode,
             anchor: [0, 0],
-            position: root? [0,0]:[roundToFixed(node.x,2), roundToFixed(node.y,2)],
+            position: root? [0,0]:[roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
     };
@@ -638,13 +642,13 @@ export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean =
         let groupCode = {
             type: "Node",
             format: {
-                type: "FigmaAnchored",
+                type: "Anchored",
             },
             data: {
                 anchor: [0, 0],
                 angle: node.rotation,
                 size: node.strokeAlign == "OUTSIDE" ? esize : fsize,
-                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(node.y,2)],
+                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
                 visible: node.visible,
             },
             children,
@@ -672,6 +676,7 @@ export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean =
 
 export async function genPolygon(node: PolygonNode, parent: SceneNode, root: boolean = false) {
 	const pathData = node.fillGeometry[0].data;
+    const ypos = parent.height ? parent.height - node.height - node.y : -node.y;
 
     const line = (node.fills as Paint[])[0] as SolidPaint;
     const color = hexColor(line);
@@ -684,7 +689,7 @@ export async function genPolygon(node: PolygonNode, parent: SceneNode, root: boo
         data: {
             polygon: vertices,
             anchor: [.5, .5],
-            position: root? [0,0] : [roundToFixed(node.x + leftMostX,2), roundToFixed(node.y,2)],
+            position: root? [0,0] : [roundToFixed(node.x + leftMostX,2), roundToFixed(ypos,2)],
             visible: node.visible,
             color: color,
             angle: node.rotation
@@ -709,6 +714,7 @@ export async function genPolygon(node: PolygonNode, parent: SceneNode, root: boo
 
 export async function genVectorPolygon(node: VectorNode, parent: SceneNode, root: boolean = false) {
 	const pathData = node.fillGeometry[0].data;
+    const ypos = parent.height ? parent.height - node.height - node.y : -node.y;
 
     const line = (node.fills as Paint[])[0] as SolidPaint;
     const color = hexColor(line);
@@ -721,7 +727,7 @@ export async function genVectorPolygon(node: VectorNode, parent: SceneNode, root
         data: {
             polygon: vertices,
             anchor: [.5, .5],
-            position: root? [0,0] : [roundToFixed(node.x + leftMostX,2), roundToFixed(node.y,2)],
+            position: root? [0,0] : [roundToFixed(node.x + leftMostX,2), roundToFixed(ypos,2)],
             visible: node.visible,
             color: color,
             angle: node.rotation

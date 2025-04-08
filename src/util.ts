@@ -171,20 +171,22 @@ export const convertYAlign = (
  */
 export const convertXAnchor = (
     value?: RectangleNode["constraints"]["horizontal"],
-    ):
-        CUGLAnchoredLayoutMixin["children"]["key"]["layout"]["x_anchor"] => {
+    ): [
+        number,
+        CUGLAnchoredLayoutMixin["children"]["key"]["layout"]["x_anchor"],
+    ] => {
     switch (value) {
     case "MIN":
-        return "left";
+        return [0, "left"];
     case "CENTER":
-        return "center";
+        return [0.5, "center"];
     case "MAX":
-        return "right";
+        return [1, "right"];
     case "STRETCH":
-        return "fill";
+        return [0.5, "fill"];
     case "SCALE":
     default:
-        return "left";
+        return [0, "left"];
   }
 };
 
@@ -194,19 +196,22 @@ export const convertXAnchor = (
  */
 export const convertYAnchor = (
     value?: RectangleNode["constraints"]["vertical"],
-    ): CUGLAnchoredLayoutMixin["children"]["key"]["layout"]["y_anchor"] => {
+    ): [
+        number,
+        CUGLAnchoredLayoutMixin["children"]["key"]["layout"]["y_anchor"],
+    ] => {
     switch (value) {
     case "MIN":
-        return "top";
+        return [1, "top"];
     case "CENTER":
-        return "middle";
+        return [0.5, "middle"];
     case "MAX":
-        return "bottom";
+        return [0, "bottom"];
     case "STRETCH":
-        return "fill"
+        return [0.5, "fill"]
     case "SCALE":
     default:
-        return "bottom";
+        return [0, "bottom"];
   }
 };
 
