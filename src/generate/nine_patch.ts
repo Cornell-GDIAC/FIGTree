@@ -43,7 +43,7 @@ export async function genNinePatch(node: InstanceNode, parent: SceneNode, root: 
     let format = undefined;
     if ("layoutMode" in node && node.layoutMode != "NONE") {
         format = {
-            type: "Float",
+            type: "FigmaAuto",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems
@@ -58,7 +58,7 @@ export async function genNinePatch(node: InstanceNode, parent: SceneNode, root: 
         } as CUGLFormatType;
     } else {
         format = {
-            type: "FigmaAnchored",
+            type: "Figma",
         } as CUGLFormatType;
     }
 

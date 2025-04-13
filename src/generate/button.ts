@@ -94,7 +94,7 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
     if (node.layoutMode != "NONE") {
         children = await genChildrenByFloat(node);
         format = {
-            type: "Float",
+            type: "FigmaAuto",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems
@@ -110,7 +110,7 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
     } else {
         children = await genChildrenByAnchor(node);
         format = {
-            type: "FigmaAnchored",
+            type: "Figma",
         } as CUGLFormatType;
     }
     
@@ -214,7 +214,7 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
     if (node.layoutMode != "NONE") {
         children = await genChildrenByFloat(node, newChildren);
         format = {
-            type: "Float",
+            type: "FigmaAuto",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems
@@ -230,7 +230,7 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
     } else {
         children = await genChildrenByAnchor(node, newChildren, true);
         format = {
-            type: "FigmaAnchored",
+            type: "Figma",
         } as CUGLFormatType;
     }
     

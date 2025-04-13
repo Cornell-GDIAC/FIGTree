@@ -52,7 +52,7 @@ export async function genProgress(node: InstanceNode | ComponentNode, parent: Sc
     let format = undefined;
     if (node.layoutMode != "NONE") {
         format = {
-            type: "Float",
+            type: "FigmaAuto",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems
@@ -67,7 +67,7 @@ export async function genProgress(node: InstanceNode | ComponentNode, parent: Sc
         } as CUGLFormatType;
     } else {
         format = {
-            type: "FigmaAnchored",
+            type: "Figma",
         } as CUGLFormatType;
     }
     

@@ -72,7 +72,7 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
     if (node.layoutMode != "NONE") {
         children = await genChildrenByFloat(node);
         format = {
-            type: "Float",
+            type: "FigmaAuto",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems
@@ -88,7 +88,7 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
     } else {
         children = await genChildrenByAnchor(node);
         format = {
-            type: "FigmaAnchored",
+            type: "Figma",
         }as CUGLFormatType;
     }
     

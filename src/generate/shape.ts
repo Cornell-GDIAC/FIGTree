@@ -533,7 +533,7 @@ export function genRectangle(node: RectangleNode, parent: SceneNode, root: boole
         let groupCode = {
             type: "Node",
             format: {
-                type: "FigmaAnchored",
+                type: "Figma",
             },
             data: {
                 anchor: [0, 0],
@@ -642,7 +642,7 @@ export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean =
         let groupCode = {
             type: "Node",
             format: {
-                type: "FigmaAnchored",
+                type: "Figma",
             },
             data: {
                 anchor: [0, 0],

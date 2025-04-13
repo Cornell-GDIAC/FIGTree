@@ -93,7 +93,7 @@ export async function genSlider(node: InstanceNode, parent: SceneNode) {
     if (node.layoutMode != "NONE") {
         children = await genChildrenByFloat(node, newChildren);
         format = {
-            type: "Float",
+            type: "FigmaAuto",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems
@@ -109,7 +109,7 @@ export async function genSlider(node: InstanceNode, parent: SceneNode) {
     } else {
         children = await genChildrenByAnchor(node, newChildren);
         format = {
-            type: "FigmaAnchored",
+            type: "Figma",
         } as CUGLFormatType;
     }
     

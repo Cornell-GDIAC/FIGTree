@@ -44,7 +44,7 @@ export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode, r
     if ("layoutMode" in node && node.layoutMode != "NONE") {
         children = await genChildrenByFloat(node);
         format = {
-            type: "Float",
+            type: "FigmaAuto",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems
@@ -60,7 +60,7 @@ export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode, r
     } else {
         children = await genChildrenByAnchor(node);
         format = {
-            type: "FigmaAnchored",
+            type: "Figma",
         } as CUGLFormatType;
     }
 
