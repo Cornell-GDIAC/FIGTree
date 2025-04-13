@@ -130,16 +130,17 @@ export type AnchorChildType = CUGLNode & CUGLAnchoredLayoutMixin["children"]["ke
  * Anchor layout is the default (non-auto) layout in Figma. For the most
  * part we only need to change coordinate systems. By default, offsets are
  * measured in percentages. However, if absolute is true, they will be 
- * measured in pixels instead.
+ * measured in pixels instead for either axis.
  * 
  * For custom children, setPosition should be set to true so that the final
  * offsets are just (0,0).
  *
  * @param child     The scene node to layout
  * @param setPosition  True if the position of the child should be set to (0,0)
- * @param absolute  Whether the layout is absolute
+ * @param x_absolute  Whether the layout is absolute in x
+ * @param y_absolute  Whether the layout is absolute in y
  */
-export async function layoutByAnchor(child: SceneNode, absolute: boolean, setPosition? : boolean) : Promise<AnchorChildType> {
+export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_absolute:boolean, setPosition? : boolean) : Promise<AnchorChildType> {
     const parent = child.parent as SceneNode;
     const constraints = "constraints" in child ? child.constraints : undefined;
     
@@ -209,8 +210,11 @@ export async function layoutByAnchor(child: SceneNode, absolute: boolean, setPos
         }
     }
     
-    if (!absolute) {
+    if (!x_absolute) {
         x_offset /= parent.width;
+    }
+    
+    if (!y_absolute){
         y_offset /= parent.height;
     }
     
@@ -221,7 +225,8 @@ export async function layoutByAnchor(child: SceneNode, absolute: boolean, setPos
         layout: {
             x_anchor,
             y_anchor,
-            absolute,
+            x_absolute,
+            y_absolute,
             x_offset,
             y_offset,
         },
@@ -249,13 +254,14 @@ export async function genChildrenByAnchor(node: SceneNode, children? : SceneNode
     // TODO: Support toggling absolute via config
     const childNodes = children ?? node.children;
     
-    const absolute = false;
+    const x_absolute = false;
+    const y_absolute = false;
     
     const result : Record<string, AnchorChildType> = {};
     const generatedChildren = await Promise.all(
         childNodes.map(async (child:SceneNode) => ({
             name: child.name,
-            node: await layoutByAnchor(child,absolute,reposition),
+            node: await layoutByAnchor(child,x_absolute,y_absolute,reposition),
         })),
     );
     

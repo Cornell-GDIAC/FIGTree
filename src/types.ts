@@ -205,7 +205,8 @@ export type CUGLPolyNode = {
     layout?: {
         x_offset?: number;
         y_offset?: number;
-        absolute?: boolean;
+        x_absolute?: boolean;
+        y_absolute?: boolean;
         x_anchor?: "left" | "center" | "right" | "fill";
         y_anchor?: "bottom" | "middle" | "top" | "fill";
     };
@@ -258,7 +259,8 @@ export type CUGLAnchoredLayoutMixin = {
             layout: {
                 x_offset?: number;
                 y_offset?: number;
-                absolute?: boolean;
+                x_absolute?: boolean;
+                y_absolute?: boolean;
                 x_anchor?: "left" | "center" | "right" | "fill";
                 y_anchor?: "bottom" | "middle" | "top" | "fill";
             };
