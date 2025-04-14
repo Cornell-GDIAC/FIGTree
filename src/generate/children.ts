@@ -151,63 +151,43 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
     
     let [x_offset, y_offset] = cuglChild.data.position || [0, 0];
     
-    if (child.rotation != 0) {
-        // This is not quite accurate, but neither is rotational layout
-        cuglChild.data.anchor = [0.5, 0.5];
-        [x_offset, y_offset] = getCenter(child);
-        
-        y_offset = parent.height ? parent.height - y_offset : -y_offset;
-        switch (x_anchor) {
-        case "right":
-            x_offset -= parent.width;
-            break;
-        case "center":
-        case "fill":
-            x_offset -= parent.width/2;
-            break;
-        case "left":
-            break;
-        }
+    // This is not quite accurate, but neither is rotational layout
+    cuglChild.data.anchor = [0.5, 0.5];
+    [x_offset, y_offset] = getCenter(child);
+    
+    y_offset = parent.height ? parent.height - y_offset : -y_offset;
+    switch (x_anchor) {
+    case "right":
+        x_absolute = true;
+        x_offset -= parent.width;
+        break;
+    case "center":
+        x_offset -= parent.width/2;
+        break;
+    case "fill":
+        x_offset -= child.width/2;
+        x_absolute = true;
+        break;
+    case "left":
+        x_absolute = true;
+        break;
+    }
 
-        switch (y_anchor) {
-        case "top":
-            y_offset -= parent.height;
-            break;
-        case "middle":
-        case "fill":
-            y_offset -= parent.height/2;
-            break;
-        case "bottom":
-            break;
-        }
-    } else {
-        switch (x_anchor) {
-        case "center":
-            x_offset += child.width/2;
-            x_offset -= parent.width/2;
-            break;
-        case "right":
-            x_offset += child.width;
-            x_offset -= parent.width;
-            break;
-        case "left":
-        case "fill":
-            break;
-        }
-
-        switch (y_anchor) {
-        case "middle":
-            y_offset += child.height/2;
-            y_offset -= parent.height/2;
-            break;
-        case "top":
-            y_offset += child.height;
-            y_offset -= parent.height;
-            break;
-        case "bottom":
-        case "fill":
-            break;
-        }
+    switch (y_anchor) {
+    case "top":
+        y_absolute = true;
+        y_offset -= parent.height;
+        break;
+    case "middle":
+        y_offset -= parent.height/2;
+        break;
+    case "fill":
+        y_offset -= child.height/2;
+        y_absolute = true;
+        break;
+    case "bottom":
+        y_absolute = true;
+        break;
     }
     
     if (!x_absolute) {
