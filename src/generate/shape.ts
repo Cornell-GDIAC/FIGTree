@@ -170,10 +170,10 @@ export function roundedRect(w : number, h : number,
  * repeated vertex is not included in the resulting number array.
  * 
  * @param svgPath         SVG of the polygon in the format of a string
- * @returns               A number array representing the vertices of the polygon
- * and the left most x value used for positioning.
+ * @returns               A number array representing the vertices of the polygon, 
+ * the left most x value used for positioning and the height of the bounding box.
  */
-function parseSVGPath(svgPath: string): {vertices: number[], leftMostX: number} {
+function parseSVGPath(svgPath: string): {vertices: number[], leftMostX: number, height: number} {
     const pathRegex = /M(-?[\d.]+) (-?[\d.]+)|L(-?[\d.]+) (-?[\d.]+)|C(-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+)|Q(-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+)/g;
     const vertices: number[] = [];
     let match;
@@ -276,7 +276,7 @@ function parseSVGPath(svgPath: string): {vertices: number[], leftMostX: number} 
         reverseVertices(vertices);
     }
 
-    return {vertices, leftMostX: minX};
+    return {vertices, leftMostX: minX, height: maxY-minY};
 }
 
 /**
@@ -378,20 +378,24 @@ export function genPath(node: LineNode, parent: SceneNode, root: boolean = false
     const line = (node.strokes as Paint[])[0] as SolidPaint;
     const color = hexColor(line);
 
-    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
-        const pathCode: CUGLPathNode = {
-            type: "Path",
-            data: {
-                anchor: [.5, .5],
-                path: [0,0,roundToFixed(node.width,2), roundToFixed(node.height,2)],
-                angle: node.rotation,
-                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
-                visible: node.visible,
-                stroke: node.strokeWeight as number,
-                joint: node.strokeJoin as string,
-                color: color
-            },
-        };
+    let ypos = parent.height ? parent.height - node.height - 
+        (node.y + Math.cos(node.rotation * Math.PI/180)*(node.strokeWeight as number - 1)/2)
+         : -(node.y + Math.cos(node.rotation * Math.PI/180)*(node.strokeWeight as number - 1)/2);
+
+    const pathCode: CUGLPathNode = {
+        type: "Path",
+        data: {
+            anchor: [.5, .5],
+            path: [0,0,roundToFixed(node.width,2), roundToFixed(node.height,2)],
+            angle: node.rotation,
+            position: root? [0,0] : [roundToFixed(node.x -Math.sin(node.rotation * Math.PI/180)*(node.strokeWeight as number - 1)/2,2), 
+                roundToFixed(ypos,2)],
+            visible: node.visible,
+            stroke: node.strokeWeight as number,
+            joint: node.strokeJoin as string,
+            color: color
+        },
+    };
         
     return pathCode;
 }
@@ -414,19 +418,19 @@ export function genVector(node: VectorNode, parent: SceneNode, root: boolean = f
     const pathData = cleanSVG(node.vectorPaths[0].data);
     const parsedPath = parseSVGPath(pathData);
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
-        const pathCode: CUGLPathNode = {
-            type: "Path",
-            data: {
-                anchor: [.5, .5],
-                path: parsedPath.vertices,
-                angle: node.rotation,
-                position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
-                visible: node.visible,
-                stroke: node.strokeWeight as number,
-                joint: node.strokeJoin as string,
-                color: color
-            },
-        };
+    const pathCode: CUGLPathNode = {
+        type: "Path",
+        data: {
+            anchor: [.5, .5],
+            path: parsedPath.vertices,
+            angle: node.rotation,
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            visible: node.visible,
+            stroke: node.strokeWeight as number,
+            joint: node.strokeJoin as string,
+            color: color
+        },
+    };
         
     return pathCode;
 }
@@ -676,12 +680,12 @@ export function genEllipse(node: EllipseNode, parent: SceneNode, root: boolean =
 
 export async function genPolygon(node: PolygonNode, parent: SceneNode, root: boolean = false) {
 	const pathData = node.fillGeometry[0].data;
-    const ypos = parent.height ? parent.height - node.height - node.y : -node.y;
+    const { vertices, leftMostX, height } = parseSVGPath(pathData);
+
+    const ypos = parent.height ? parent.height - height - node.y : -node.y;
 
     const line = (node.fills as Paint[])[0] as SolidPaint;
     const color = hexColor(line);
-
-    const { vertices, leftMostX } = parseSVGPath(pathData);
 
     var svgCode: CUGLPolyNode;
     svgCode = {

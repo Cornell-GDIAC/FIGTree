@@ -199,7 +199,7 @@ export type CUGLRectNode = {
 export type CUGLPolyNode = {
     type: "Solid";
     data: Data & {
-        polygon?: number[] | Poly;
+        polygon: number[] | Poly;
         color?: CUGLRGBA | string;
     };
     layout?: {

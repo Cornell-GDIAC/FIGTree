@@ -20,6 +20,7 @@
 import { generateNode } from ".";
 import {
     CUGLNode,
+    CUGLPolyNode,
     CUGLFloatLayoutMixin,
     CUGLAnchoredLayoutMixin,
 } from "../types";
@@ -47,6 +48,104 @@ function getCenter(node: SceneNode) {
     const top   = node.relativeTransform[1][0]*node.width+node.relativeTransform[1][1]*node.height+node.y;
     
     return [(node.x+right)/2,(node.y+top)/2];
+}
+
+/**
+ * Calculates the width and height of the bounding box for a set of vertices.
+ *
+ * @param vertices      Flat array of coordinates: [x1, y1, x2, y2, ..., xn, yn]
+ * @returns  The width and height of the bounding box for a polygon
+ */
+function getBoundingBoxDimnensions(vertices: number[]): {width: number, height: number} {
+    let minX = vertices[0];
+    let maxX = vertices[0];
+    let minY = vertices[1];
+    let maxY = vertices[1];
+
+    for (let i = 0; i < vertices.length; i += 2) {
+        const x = vertices[i];
+        const y = vertices[i + 1];
+
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+    }
+
+    return {
+        width: maxX - minX,
+        height: maxY - minY
+    };
+}
+
+/**
+ * Apply the node's transform to all vertices.
+ * 
+ * @param transform         2x3 matrix
+ * @param vertices          Flat array of coordinates: [x1, y1, ..., xn, yn]
+ * @returns  Transformed flat array
+ */
+function transformVertices(transform: number[][], vertices: number[]) {
+    if (vertices.length < 2) {
+        throw new Error("At least one vertex required.");
+    }
+
+    // Step 1: Compute local bounding box
+    let minX = vertices[0];
+    let maxX = vertices[0];
+    let minY = vertices[1];
+    let maxY = vertices[1];
+
+    for (let i = 0; i < vertices.length; i += 2) {
+        const x = vertices[i];
+        const y = vertices[i + 1];
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+    }
+
+    // Step 2: Translate vertices to origin-relative
+    const transformed = [];
+    for (let i = 0; i < vertices.length; i += 2) {
+        const x = vertices[i] - minX;
+        const y = vertices[i + 1] - minY;
+
+        const tx = transform[0][0] * x + transform[0][1] * y + transform[0][2];
+        const ty = transform[1][0] * x + transform[1][1] * y + transform[1][2];
+
+        transformed.push(tx, ty);
+    }
+
+    return transformed;
+}
+
+/**
+ * Calculates the center of the bounding box for transformed vertices.
+ * 
+ * @param transformedVertices       Flat array of transformed coordinates
+ * @returns  Center of bounding box
+ */
+function getBoundingBoxCenter(transformedVertices: number[]) {
+    let minX = transformedVertices[0];
+    let maxX = transformedVertices[0];
+    let minY = transformedVertices[1];
+    let maxY = transformedVertices[1];
+
+    for (let i = 0; i < transformedVertices.length; i += 2) {
+        const x = transformedVertices[i];
+        const y = transformedVertices[i + 1];
+
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+    }
+
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+
+    return [centerX, centerY];
 }
 
 
@@ -144,16 +243,30 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
     const parent = child.parent as SceneNode;
     const constraints = "constraints" in child ? child.constraints : undefined;
     
-    const [anchor_x, x_anchor] = convertXAnchor(constraints?.horizontal);
-    const [anchor_y, y_anchor] = convertYAnchor(constraints?.vertical);
+    const x_anchor = convertXAnchor(constraints?.horizontal);
+    const y_anchor = convertYAnchor(constraints?.vertical);
     const cuglChild = await generateNode(child);
-    cuglChild.data.anchor = [anchor_x, anchor_y];
     
-    let [x_offset, y_offset] = cuglChild.data.position || [0, 0];
+    let height = child.height;
+    let width = child.width;
     
-    // This is not quite accurate, but neither is rotational layout
     cuglChild.data.anchor = [0.5, 0.5];
-    [x_offset, y_offset] = getCenter(child);
+    let [x_offset, y_offset] = getCenter(child);
+
+    if (child.type === 'POLYGON'){
+        // // const vertices: number[] = (cuglChild as CUGLPolyNode).data.polygon as number[];
+        // // ({width, height} = getBoundingBoxDimnensions(vertices));
+        // // x_offset = child.x + child.width/2;
+        // // y_offset = child.y + height/2;
+        // const vertices: number[] = (cuglChild as CUGLPolyNode).data.polygon as number[];
+        // const transformedVertices = transformVertices(child.relativeTransform, vertices);
+
+        // // Step 2: compute center of the transformed bounding box
+        // [x_offset, y_offset] = getBoundingBoxCenter(transformedVertices);
+    } else if (child.type === 'LINE'){
+        x_offset += -Math.sin(child.rotation * Math.PI/180) * (child.strokeWeight as number - 1)/2;
+        y_offset += Math.cos(child.rotation * Math.PI/180) * (child.strokeWeight as number - 1)/2;
+    }
     
     y_offset = parent.height ? parent.height - y_offset : -y_offset;
     switch (x_anchor) {
@@ -165,7 +278,7 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
         x_offset -= parent.width/2;
         break;
     case "fill":
-        x_offset -= child.width/2;
+        x_offset -= width/2;
         x_absolute = true;
         break;
     case "left":
@@ -182,7 +295,7 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
         y_offset -= parent.height/2;
         break;
     case "fill":
-        y_offset -= child.height/2;
+        y_offset -= height/2;
         y_absolute = true;
         break;
     case "bottom":
