@@ -264,8 +264,8 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
         // // Step 2: compute center of the transformed bounding box
         // [x_offset, y_offset] = getBoundingBoxCenter(transformedVertices);
     } else if (child.type === 'LINE'){
-        x_offset += -Math.sin(child.rotation * Math.PI/180) * (child.strokeWeight as number - 1)/2;
-        y_offset += Math.cos(child.rotation * Math.PI/180) * (child.strokeWeight as number - 1)/2;
+        x_offset += -Math.sin(child.rotation * Math.PI/180) * (child.strokeWeight as number)/2;
+        y_offset += Math.cos(child.rotation * Math.PI/180) * (child.strokeWeight as number)/2;
     }
     
     y_offset = parent.height ? parent.height - y_offset : -y_offset;

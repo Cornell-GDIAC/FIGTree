@@ -379,8 +379,8 @@ export function genPath(node: LineNode, parent: SceneNode, root: boolean = false
     const color = hexColor(line);
 
     let ypos = parent.height ? parent.height - node.height - 
-        (node.y + Math.cos(node.rotation * Math.PI/180)*(node.strokeWeight as number - 1)/2)
-         : -(node.y + Math.cos(node.rotation * Math.PI/180)*(node.strokeWeight as number - 1)/2);
+        (node.y + Math.cos(node.rotation * Math.PI/180)*(node.strokeWeight as number)/2)
+         : -(node.y + Math.cos(node.rotation * Math.PI/180)*(node.strokeWeight as number)/2);
 
     const pathCode: CUGLPathNode = {
         type: "Path",
@@ -388,7 +388,7 @@ export function genPath(node: LineNode, parent: SceneNode, root: boolean = false
             anchor: [.5, .5],
             path: [0,0,roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position: root? [0,0] : [roundToFixed(node.x -Math.sin(node.rotation * Math.PI/180)*(node.strokeWeight as number - 1)/2,2), 
+            position: root? [0,0] : [roundToFixed(node.x -Math.sin(node.rotation * Math.PI/180)*(node.strokeWeight as number)/2,2), 
                 roundToFixed(ypos,2)],
             visible: node.visible,
             stroke: node.strokeWeight as number,
