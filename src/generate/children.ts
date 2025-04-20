@@ -251,7 +251,7 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
     let width = child.width;
     
     cuglChild.data.anchor = [0.5, 0.5];
-    let [x_offset, y_offset] = getCenter(child);
+    let [l_offset, t_offset] = getCenter(child);
 
     if (child.type === 'POLYGON'){
         // // const vertices: number[] = (cuglChild as CUGLPolyNode).data.polygon as number[];
@@ -264,22 +264,31 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
         // // Step 2: compute center of the transformed bounding box
         // [x_offset, y_offset] = getBoundingBoxCenter(transformedVertices);
     } else if (child.type === 'LINE'){
-        x_offset += -Math.sin(child.rotation * Math.PI/180) * (child.strokeWeight as number)/2;
-        y_offset += Math.cos(child.rotation * Math.PI/180) * (child.strokeWeight as number)/2;
+        l_offset += -Math.sin(child.rotation * Math.PI/180) * (child.strokeWeight as number)/2;
+        t_offset += Math.cos(child.rotation * Math.PI/180) * (child.strokeWeight as number)/2;
     }
     
-    y_offset = parent.height ? parent.height - y_offset : -y_offset;
+    t_offset = parent.height ? parent.height - t_offset : -t_offset;
+
+    let r_offset = 0;
+    let b_offset = 0;
     switch (x_anchor) {
     case "right":
         x_absolute = true;
-        x_offset -= parent.width;
+        l_offset -= parent.width;
         break;
     case "center":
-        x_offset -= parent.width/2;
-        break;
-    case "fill":
-        x_offset -= width/2;
         x_absolute = true;
+        l_offset -= parent.width/2;
+        break;
+    case "left+right":
+        l_offset -= width/2;
+        r_offset = parent.width - (l_offset + width);
+        x_absolute = true;
+        break;
+    case "scale":
+        l_offset -= width/2;
+        r_offset = parent.width - (l_offset + width);
         break;
     case "left":
         x_absolute = true;
@@ -289,14 +298,20 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
     switch (y_anchor) {
     case "top":
         y_absolute = true;
-        y_offset -= parent.height;
+        t_offset -= parent.height;
         break;
     case "middle":
-        y_offset -= parent.height/2;
-        break;
-    case "fill":
-        y_offset -= height/2;
+        t_offset -= parent.height/2;
         y_absolute = true;
+        break;
+    case "top+bottom":
+        t_offset -= height/2;
+        b_offset = parent.height - (t_offset + height)
+        y_absolute = true;
+        break;
+    case "scale":
+        t_offset -= height/2;
+        b_offset = parent.height - (t_offset + height)
         break;
     case "bottom":
         y_absolute = true;
@@ -304,15 +319,19 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
     }
     
     if (!x_absolute) {
-        x_offset /= parent.width;
+        l_offset /= parent.width;
+        r_offset /= parent.width;
     }
     
     if (!y_absolute){
-        y_offset /= parent.height;
+        t_offset /= parent.height;
+        b_offset /= parent.height;
     }
     
-    x_offset = setPosition? 0 : roundToFixed(x_offset,2);
-    y_offset = setPosition? 0 : roundToFixed(y_offset,2);
+    let left_offset = setPosition? 0 : roundToFixed(l_offset,2);
+    let right_offset = setPosition? 0 : roundToFixed(r_offset,2);
+    let top_offset = setPosition? 0 : roundToFixed(t_offset,2);
+    let bottom_offset = setPosition? 0 : roundToFixed(b_offset,2);
     return {
         ...cuglChild,
         layout: {
@@ -320,8 +339,10 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
             y_anchor,
             x_absolute,
             y_absolute,
-            x_offset,
-            y_offset,
+            left_offset,
+            right_offset,
+            top_offset,
+            bottom_offset,
         },
     };
 }

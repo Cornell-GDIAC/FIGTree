@@ -203,8 +203,10 @@ export type CUGLPolyNode = {
         color?: CUGLRGBA | string;
     };
     layout?: {
-        x_offset?: number;
-        y_offset?: number;
+        l_offset?: number;
+        r_offset?: number;
+        t_offset?: number;
+        b_offset?: number;
         x_absolute?: boolean;
         y_absolute?: boolean;
         x_anchor?: "left" | "center" | "right" | "fill";
@@ -257,12 +259,14 @@ export type CUGLAnchoredLayoutMixin = {
     children: {
         [key: string]: {
             layout: {
-                x_offset?: number;
-                y_offset?: number;
+                left_offset?: number;
+                right_offset?: number;
+                top_offset?: number;
+                bottom_offset?: number;
                 x_absolute?: boolean;
                 y_absolute?: boolean;
-                x_anchor?: "left" | "center" | "right" | "fill";
-                y_anchor?: "bottom" | "middle" | "top" | "fill";
+                x_anchor?: "left" | "center" | "right" | "left+right" | "scale";
+                y_anchor?: "bottom" | "middle" | "top" | "top+bottom" | "scale";
             };
         };
     };

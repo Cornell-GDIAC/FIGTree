@@ -180,8 +180,9 @@ export const convertXAnchor = (
     case "MAX":
         return "right";
     case "STRETCH":
-        return "fill";
+        return "left+right";
     case "SCALE":
+        return "scale";
     default:
         return "left";
   }
@@ -202,8 +203,9 @@ export const convertYAnchor = (
     case "MAX":
         return "bottom";
     case "STRETCH":
-        return "fill";
+        return "top+bottom";
     case "SCALE":
+        return "scale";
     default:
         return "bottom";
   }
