@@ -8,8 +8,9 @@
  *
  * This module also contains several other utility functions.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
+ * Date: 4/27/25
  */
 
 import {
@@ -27,7 +28,7 @@ import {
  *
  * @return a number rounded to the specified number of decimal places
  */
-export function roundToFixed(value, places){
+export function roundToFixed(value: number, places: number){
 	let epsilon = 0.00001;
 	if (value < epsilon && value > -epsilon) {
 		return 0;
@@ -157,11 +158,8 @@ export const convertYAlign = (
         return "bottom";
     case "CENTER":
         return "middle";
-    case "SPACE_BETWEEN":
-        return "space between";
-    case "BASELINE":
-        return "baseline";
-        //throw new Error(`${value} is not supported`);
+    default:
+        return undefined;
   }
 };
 

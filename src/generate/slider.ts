@@ -18,18 +18,17 @@
  * a button automatically. Otherwise, the user can make the slider knob more
  * complex by creating their own button in figma.
  *
- * We naming through tagging. The slider is a instance tagged with the name 
- * "slider" as a property value. It is necessary to tag the children, if the 
- * user wants to specify a knob and path, they must create properties "Knob" 
- * and "Path" in the component and assign them the name of the nodes that 
- * correspond to each respectively.
+ * The slider is a instance tagged with the name "slider" as a property value. 
+ * It is necessary to tag the children, if the user wants to specify a knob and 
+ * path. They must create properties "Knob" and "Path" in the component and 
+ * assign them the name of the nodes that correspond to each respectively.
  * 
  * They can also add additional optional properties to the sliders as mentioned
  * in the Scenegraph tutorial. These include range (a number array), value (a 
  * number representing the init value), tick (the number of ticks in the slider),
  * and snap (a boolean if the knob snaps to ticks)
  *
- * Authors: Walker White, Joaquin Rivera
+ * Authors: Walker White, Joaquin Rivera, Sebastian Rivera
  * Date: 3/13/24
  */
 import { roundToFixed } from "../util";

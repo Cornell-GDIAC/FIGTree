@@ -1,4 +1,10 @@
 /*
+NOTE: At the time of this development, progress bars in the Scenetool were identified
+as broken -- leaving us to scrap this function with figtree. Once progress bars 
+are fixed in CUGL, this functionality can be revisited.
+/
+
+/*
  * progress.ts
  *
  * Module generating CUGL progress bars.
@@ -15,79 +21,79 @@
  * Authors: Joaquin Rivera, Sebastian Rivera
  * Date: 3/9/25
  */
-import { roundToFixed } from "../util";
-import {
-  CUGLProgressNode,
-  CUGLLayoutMixin,
-  CUGLChildrenMixin,
-  CUGLFormatType,
-} from "../types";
-import {
-    convertXAlign,
-    convertYAlign,
-    convertLayoutMode,
-} from "../util";
+// import { roundToFixed } from "../util";
+// import {
+//   CUGLProgressNode,
+//   CUGLLayoutMixin,
+//   CUGLChildrenMixin,
+//   CUGLFormatType,
+// } from "../types";
+// import {
+//     convertXAlign,
+//     convertYAlign,
+//     convertLayoutMode,
+// } from "../util";
 
-import { genChildrenByFloat, genChildrenByAnchor } from "./children";
+// import { genChildrenByFloat, genChildrenByAnchor } from "./children";
 
-/**
- * Returns a progress corresponding to an annotated instance or component
- *
- * This function takes any instance with the property tag set as 
- * "Progress" and turns it into a progress. It will look at the children
- * for the various images that make up a progress progress.
- *
- * @param node      The instance to convert
- * @param parent    The parent of the instance
- *
- * @return a scene node corresponding to the given instance
- */
-export async function genProgress(node: InstanceNode | ComponentNode, parent: SceneNode) {
-    if (node.children.length != 0) {
-        throw new Error('Keyword "progress" attached to a node with children',);
-    }
+// /**
+//  * Returns a progress corresponding to an annotated instance or component
+//  *
+//  * This function takes any instance with the property tag set as 
+//  * "Progress" and turns it into a progress. It will look at the children
+//  * for the various images that make up a progress progress.
+//  *
+//  * @param node      The instance to convert
+//  * @param parent    The parent of the instance
+//  *
+//  * @return a scene node corresponding to the given instance
+//  */
+// export async function genProgress(node: InstanceNode | ComponentNode, parent: SceneNode) {
+//     if (node.children.length != 0) {
+//         throw new Error('Keyword "progress" attached to a node with children',);
+//     }
 
-    // Layout the children
-    let children = undefined;
-    let format = undefined;
-    if (node.layoutMode != "NONE") {
-        format = {
-            type: "FigmaAuto",
-            x_alignment: convertXAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.primaryAxisAlignItems
-                                : node.counterAxisAlignItems,
-                            ),
-            y_alignment: convertYAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.counterAxisAlignItems
-                                : node.primaryAxisAlignItems,
-                            ),
-            orientation: convertLayoutMode(node.layoutMode),
-        } as CUGLFormatType;
-    } else {
-        format = {
-            type: "Figma",
-        } as CUGLFormatType;
-    }
+//     // Layout the children
+//     let children = undefined;
+//     let format = undefined;
+//     if (node.layoutMode != "NONE") {
+//         format = {
+//             type: "FigmaAuto",
+//             x_alignment: convertXAlign(
+//                             node.layoutMode === "HORIZONTAL"
+//                                 ? node.primaryAxisAlignItems
+//                                 : node.counterAxisAlignItems,
+//                             ),
+//             y_alignment: convertYAlign(
+//                             node.layoutMode === "HORIZONTAL"
+//                                 ? node.counterAxisAlignItems
+//                                 : node.primaryAxisAlignItems,
+//                             ),
+//             orientation: convertLayoutMode(node.layoutMode),
+//         } as CUGLFormatType;
+//     } else {
+//         format = {
+//             type: "Figma",
+//         } as CUGLFormatType;
+//     }
     
-    let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
-    const progressCode: CUGLProgressNode & CUGLChildrenMixin & CUGLLayoutMixin = {
-        type: "Progress",
-        format,
-        data: {
-            anchor: [0, 0],
-            size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
-            angle: node.rotation,
-            position:[roundToFixed(node.x,2), roundToFixed(ypos,2)],
-            visible: node.visible,
-            background: node.name + "_background",
-            foreground: node.name + "_foreground",
-            left_cap: node.name + "_leftcap",
-            right_cap: node.name + "_rightcap",
-        },
-        children,
-    };
+//     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
+//     const progressCode: CUGLProgressNode & CUGLChildrenMixin & CUGLLayoutMixin = {
+//         type: "Progress",
+//         format,
+//         data: {
+//             anchor: [0, 0],
+//             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
+//             angle: node.rotation,
+//             position:[roundToFixed(node.x,2), roundToFixed(ypos,2)],
+//             visible: node.visible,
+//             background: node.name + "_background",
+//             foreground: node.name + "_foreground",
+//             left_cap: node.name + "_leftcap",
+//             right_cap: node.name + "_rightcap",
+//         },
+//         children,
+//     };
     
-    return progressCode;
-}
+//     return progressCode;
+// }

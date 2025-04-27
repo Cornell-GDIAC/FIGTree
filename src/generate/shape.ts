@@ -1,13 +1,15 @@
 /*
  * shape.ts
  *
- * Module generating solid shapes.
+ * Module generating solid shapes, polygons, lines, and vectors.
  *
  * We currently do not support textured shapes, or shapes with mixed colors,
- * as that behavior in Figma is different than it is in CUGL. We also only
- * support ellipses and rectangles (including those with rounded corners).
+ * as that behavior in Figma is different than it is in CUGL. This does not
+ * support generic polygons in Figma as Figma gives them incorrect bounding boxes.
+ * Users must change them to vector paths to be parsed correctly.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
  * Date: 1/24/24
  */
 import { 
@@ -56,7 +58,6 @@ export function ellipse(w: number, h: number, segs: number) {
     }
     return points;
 }
-
 
 /**
  * Returns the points of a rounded rectangle anchored at the origin
@@ -366,7 +367,9 @@ function cleanSVG(svgString: string): string {
  * Returns a CUGL path for the corresponding Figma line
  * 
  * This line may or may not have rounded corners. The node returned is a path
- * node with width equal to the width of the line
+ * node with width equal to the width of the line. The x and y are shifted as 
+ * Figma treats line weight as growing from one side of the line rather than 
+ * growing out from the center.
  * 
  * @param node      The line node
  * @param parent    The parent of the line node

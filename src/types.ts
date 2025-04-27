@@ -8,8 +8,9 @@
  * Textfield.  However, not all of the these types are currently supported.
  * Set the "generate" package for the list of supported types.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, 
+ * Joaquin Rivera, Sebastian Rivera
+ * Date: 4/27/25
  */
 
 // Whether to export as a scenegraph node or a widget.
@@ -38,7 +39,6 @@ type CUGLNodeType =
     | CUGLLabelNode
     | CUGLTextFieldNode
     | CUGLImageNode
-    | CUGLNinePatchNode
     | CUGLRectNode
     | CUGLPolyNode
     | CUGLPathNode
@@ -106,6 +106,9 @@ export type CUGLButtonNode = {
     };
 };
 
+/**
+ * A slider node
+ */
 export type CUGLSliderNode = {
     type: "Slider";
     data: Data & {
@@ -137,7 +140,8 @@ export type CUGLLabelNode = {
             | "right"
             | "hard left"
             | "true center"
-            | "hard right";
+            | "hard right"
+            | "justify";
         valign?:
             | "top"
             | "middle"
@@ -166,7 +170,8 @@ export type CUGLTextFieldNode = {
             | "right"
             | "hard left"
             | "true center"
-            | "hard right";
+            | "hard right"
+            | "justify";
         valign?:
             | "top"
             | "middle"
@@ -232,17 +237,8 @@ export type CUGLPathNode = {
 };
 
 /**
- * A nine patch node
+ * Supported Figma to CUGL format types
  */
-export type CUGLNinePatchNode = {
-    type: "NinePatch";
-    data: Data & {
-        texture: string;
-        interior: number[];
-    };
-};
-
-
 export type CUGLFormatType = {
     type: "Figma" | "FigmaAuto";
     orientation?: "horizontal" | "vertical";

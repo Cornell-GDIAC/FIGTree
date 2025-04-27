@@ -7,16 +7,17 @@
  * Figma. A button in CUGL is a scene graph node with a child representing
  * the up position, and an optional child representing the down node. 
  *
- * We handle this through tagging. The button is a instance or component
+ * We handle this through tagging. The button is a instance of a component
  * tagged with the name "Button" as a property value. It is not necessary 
  * to tag the children, however if the user wants to specify an up and down
- * they must label the images "up" and "down" respecively.
+ * they must label the images "up" and "down" respectively.
  * 
  * It is not necessary to label the textures if there is only one child of
  * the button. It will be treated as "up".
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
+ * Date: 4/27/25
  */
 import { roundToFixed } from "../util";
 import {
@@ -34,14 +35,15 @@ import {
 import { genChildrenByFloat, genChildrenByAnchor } from "./children";
 
 /**
- * Returns a button corresponding to an annotated instance or component
+ * Returns a button corresponding to an annotated instance
  *
- * This function takes any instance with the property tag set as 
- * "Button" and turns it into a button. If there is only one variant, that is 
- * the up node. Otherwise it looks for a varaint named "up". If there is no such 
- * node, it picks the first one.
+ * This function takes the instance given and turns it into a button.If there is 
+ * only one variant, that is the up node. Otherwise it looks for a varaint named 
+ * "up". If there is no such node, it picks the first one.
  * 
  * This function will only create a down node if there is a variant named "down".
+ * 
+ * This function should only be called on instances with the property "Button".
  *
  * @param node      The instance to convert
  * @param parent    The parent of the instance
@@ -67,10 +69,9 @@ export async function genButton(node: InstanceNode, parent: SceneNode) {
 /**
  * Returns a button described by a component with no variants.
  * 
- * This function takes an instance with the property tag set as 
- * "Button" and turns it into a button. As there are no variants to the
- * component, the component described will be treated as the "up" state
- * of the button while no "down" state is described.
+ * This function takes an instance and turns it into a button. As there are no 
+ * variants to the component, the component described will be treated as the "up" 
+ * state of the button, as no "down" state was described. 
  *
  * @param node      The instance to convert
  * @param parent    The parent of the instance
@@ -133,14 +134,13 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
 }
 
 /**
- * Returns a button described by a component with varaints.
+ * Returns a button described by a component with variants.
  * 
- * This function takes an instance with the property tag set as 
- * "Button" and turns it into a button. The "up" state will be assigned to
- * the variant with name "up" and the "down" state will be assigned to the
- * variant with name "down". In the case that no variant has name "down",
- * no down state will be assigned. In the case that no variant is named "up",
- * the default state will be assigned to "up".
+ * This function takes an instance and turns it into a button. The "up" state 
+ * will be assigned to the variant with state "up", and the "down" state will be 
+ * assigned to the variant with state "down". In the case that no variant has 
+ * state "down", no down state will be assigned. In the case that no variant has 
+ * state "up", the default variant will be assigned to "up".
  *
  * @param node      The instance to convert
  * @param parent    The parent of the instance

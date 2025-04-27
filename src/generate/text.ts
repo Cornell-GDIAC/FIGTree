@@ -6,7 +6,8 @@
  * We support both label and text field nodes. A text field in Figma is simply
  * a text object with the tag "edit" before its name.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
  * Date: 1/24/24
  */
 import { CUGLLabelNode, CUGLTextFieldNode, CUGLChildrenMixin } from "../types";
@@ -38,7 +39,6 @@ export function genLabel(node: TextNode, parent: SceneNode, root: boolean = fals
     let fsize  = node.fontSize as number;
     const fkey = fname+fstyle+fsize;
     
-    // TODO: Not sure how to get padding
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     let textCode: CUGLLabelNode & CUGLChildrenMixin = {
         type: "Label",
@@ -97,7 +97,6 @@ export function genTextField(node: TextNode, parent: SceneNode) {
     let fsize  = node.fontSize as number;
     const fkey = fname+fstyle+fsize;
     
-    // TODO: Not sure how to get padding
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     let textCode: CUGLTextFieldNode & CUGLChildrenMixin = {
         type: "TextField",

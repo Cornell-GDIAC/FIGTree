@@ -14,8 +14,9 @@
  *
  * Designers should be aware of these when working in Figma.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
+ * Date: 4/27/25
  */
 import { generateNode } from ".";
 import {
@@ -76,8 +77,6 @@ type FloatChildType = CUGLNode & CUGLFloatLayoutMixin["children"]["key"]
  * @return a list of children arranged using a float layout
  */
 export async function genChildrenByFloat(node: SceneNode, children? : SceneNode[]) : Promise<Record<string, FloatChildType>> {
-    // TODO: Correct type checking for unused scenario
-    // TODO: Replace this space node with padding
     const childNodes = children ?? node.children;
 
     const mode = ("layoutMode" in node && node.layoutMode === "HORIZONTAL");
@@ -104,9 +103,7 @@ export async function genChildrenByFloat(node: SceneNode, children? : SceneNode[
         // Recenter the node
         node.data.position = getCenter(child);
         node.data.anchor = [0.5,0.5];
-        console.log(node.data.position);
         node.data.position[1] = parent.height ? parent.height - node.data.position[1] : -node.data.position[1];
-        console.log(node.data.position);
         const padding = (index == 0) ? startPadding : (index == generatedChildren.length-1)
                                      ? finalPadding : interPadding;
         result[key] = {
@@ -133,6 +130,9 @@ export type AnchorChildType = CUGLNode & CUGLAnchoredLayoutMixin["children"]["ke
  * part we only need to change coordinate systems. By default, offsets are
  * measured in percentages. However, if absolute is true, they will be 
  * measured in pixels instead for either axis.
+ * 
+ * This matches the CUGL layout manager Figma Layout to address the constraints
+ * not possible with CUGL's Anchor Layout.
  * 
  * For custom children, setPosition should be set to true so that the final
  * offsets are just (0,0).

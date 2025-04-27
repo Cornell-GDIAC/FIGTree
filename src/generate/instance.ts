@@ -1,12 +1,16 @@
 /*
  * instance.ts
  *
- * Module generating CUGL generic scene nodes.
+ * Module generating CUGL generic scene nodes or special UI.
  *
  * In CUGL, scene nodes are used to group together individual elements into a
  * single coordinate space. They serve the same purpose as frames in Figma.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
+ * If a special UI tag is assigned to the instance, they will be parsed as that
+ * special UI rather than just a frame.
+ * 
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
  * Date: 1/24/24
  */
 import { roundToFixed } from "../util";
@@ -28,8 +32,6 @@ import {
 import { genButton } from "./button";
 import { genTextField } from "./text";
 import { genSlider } from "./slider";
-import { genProgress } from "./progress";
-import { genNinePatch } from "./nine_patch";
 
 /**
  * Returns a instance node corresponding to the given frame
@@ -56,8 +58,6 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
         switch(tag.toLowerCase()){
             case "button":
                 return genButton(node, parent);
-            case "nine_patch":
-                return genNinePatch(node, parent);
             case "textfield":
                 return genTextField(node.children[0] as TextNode, parent);
             case "slider":

@@ -6,17 +6,15 @@
  * This module recursively expands the nodes into each type. We assume that
  * the top level node is a Figma frame.
  *
- * Names are assigned according the layer name in Figma. Names must be valid
- * identifiers (numbers, letters, underscore, and not beginning with a number).
- * Only the root node may not have a name.
- *
  * Special UI elements are implemented through instances and components. They
  * are marked by the component property "Tag". The value of the property is
  * the type of special UI to implement. Users are expected to follow the
- * specification for creating each special UI type in figma.
+ * specification for creating each special UI type in figma. Users are also expected
+ * to use instances in the figma scene rather than the component itself.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
+ * Date: 4/27/25
  */
 
 // Import the relevant types

@@ -1,13 +1,15 @@
 /*
  * component.ts
  *
- * Module generating CUGL generic scene nodes.
+ * Module generating CUGL generic scene nodes as components should not be used
+ * inside figma scenes and as such will not be treated different from frames.
  *
  * In CUGL, scene nodes are used to group together individual elements into a
  * single coordinate space. They serve the same purpose as frames in Figma.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
+ * Date: 4/27/25
  */
 import { roundToFixed } from "../util";
 import {
@@ -25,15 +27,12 @@ import {
     genChildrenByFloat, 
     genChildrenByAnchor 
 } from "./children";
-import { genTextField } from "./text";
-import { genProgress } from "./progress";
-import { genNinePatch } from "./nine_patch";
 
 /**
- * Returns a component node corresponding to the given frame
+ * Returns a component node corresponding to the given component
  *
- * This function checks whether the component is a special
- * UI element and generates each accordingly.
+ * This function treates components the same as frames as they are not
+ * meant to be included in figma scenes, but used to create instances.
  *
  * @param node      The component to convert
  * @param parent    The parent of the component
