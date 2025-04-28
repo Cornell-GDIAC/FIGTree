@@ -7,13 +7,23 @@
  * Figma. A button in CUGL is a scene graph node with a child representing
  * the up position, and an optional child representing the down node. 
  *
- * We handle this through tagging. The button is a instance of a component
- * tagged with the name "Button" as a property value. It is not necessary 
- * to tag the children, however if the user wants to specify an up and down
- * they must label the images "up" and "down" respectively.
+ * We handle this through tagging. A simple button is a instance of a component
+ * tagged with the name "Button" as a property value. Since components have no
+ * ability to define variants, there is expected to only be one unlabeled child 
+ * which represents the "up" state.
  * 
- * It is not necessary to label the textures if there is only one child of
- * the button. It will be treated as "up".
+ * To create more complex buttons with potentially a down state, a component set
+ * must be used. If no "state" property is defined, only the selected instance of 
+ * the component set will be treated as "up" and no "down" will be assigned. If a 
+ * "state" property is defined, then all the components in the set are checked
+ * to have the same variants as the selected instance. The component corresponding
+ * to "up" will be assigned to "up", and the component corresponding to "down" will
+ * be assigned to "down". All other components in the set will be ignored as they
+ * have at least one variant property that is different from the selected instance.
+ * 
+ * The simple button component or complex button component set can be given a 
+ * boolean property "toggle" to determine if the button should change state when 
+ * pressed down and retain that state until pressed again.
  *
  * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
  * Sebastian Rivera
@@ -82,12 +92,13 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
     if (node.children.length != 1) {
         throw new Error('Keyword "button" attached to a node with no children or more than 1 child',);
     }
-    
-    let firstButton = "";
-    let name = node.children[0].name;
-    if (name != undefined) {
-        firstButton = name;
+
+    let additionalProperties = new Map<string, any>();
+    for (const key in node.componentProperties) {
+        additionalProperties.set(key.split('#')[0].toLowerCase(), node.componentProperties[key].value)
     }
+    
+    let firstButton = node.children[0].name;
     
     // Layout the children
     let children = undefined;
@@ -129,6 +140,10 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
         },
         children,
     };
+
+    if (additionalProperties.has("toggle")){
+        buttonCode.data.toggle = additionalProperties.get("toggle");
+    }
     
     return buttonCode;
 }
@@ -165,6 +180,11 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
                 searchProperties.set(key, node.componentProperties[key].value);
             }
         }
+    }
+
+    let allProperties = new Map<string, any>();
+    for (const key in node.componentProperties) {
+        allProperties.set(key.split('#')[0].toLowerCase(), node.componentProperties[key].value)
     }
 
     let newChildren : ComponentNode[] = []; 
@@ -251,6 +271,9 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
     
     if ("down" in buttonNames) {
         buttonCode.data.downnode = buttonNames["down"];
+    }
+    if (allProperties.has("toggle")){
+        buttonCode.data.toggle = allProperties.get("toggle");
     }
     
     return buttonCode;

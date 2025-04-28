@@ -103,6 +103,7 @@ export type CUGLButtonNode = {
     data: Data & {
         upnode: string;
         downnode?: string | CUGLRGBA;
+        toggle?: boolean;
     };
 };
 
