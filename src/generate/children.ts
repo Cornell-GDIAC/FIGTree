@@ -237,7 +237,7 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
  * @param children      The custom children of this node
  * @param reposition    Should these children be positioned at (0,0)
  *
- * @return a list of children arranged using a float layout
+ * @return a list of children arranged using a anchor layout
  */
 export async function genChildrenByAnchor(node: SceneNode, children? : SceneNode[], reposition?: boolean) : Promise<Record<string, AnchorChildType>> {
     // TODO: Support toggling absolute via config

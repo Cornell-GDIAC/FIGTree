@@ -93,7 +93,7 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
     let children = undefined;
     let format = undefined;
     if (node.layoutMode != "NONE") {
-        children = await genChildrenByFloat(node);
+        children = await genChildrenByNoLayout(node);
         format = {
             type: "NoLayout",
             x_alignment: convertXAlign(
@@ -212,7 +212,7 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
     let children = undefined;
     let format = undefined;
     if (node.layoutMode != "NONE") {
-        children = await genChildrenByFloat(node, newChildren);
+        children = await genChildrenByNoLayout(node, newChildren);
         format = {
             type: "NoLayout",
             x_alignment: convertXAlign(

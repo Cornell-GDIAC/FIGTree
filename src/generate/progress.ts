@@ -35,7 +35,7 @@ Implemented by treating a loading bar as a 3 patch.
 //     convertLayoutMode,
 // } from "../util";
 
-// import { genChildrenByFloat, genChildrenByAnchor } from "./children";
+// import { genChildrenByNoLayout, genChildrenByAnchor } from "./children";
 
 // /**
 //  * Returns a progress corresponding to an annotated instance or component
