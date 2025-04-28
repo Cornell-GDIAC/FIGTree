@@ -4,7 +4,7 @@
  * Module generating CUGL text nodes.
  *
  * We support both label and text field nodes. A text field in Figma is simply
- * a text object with the tag "edit" before its name.
+ * an instance object with the tag "edit" with a singular child text node.
  *
  * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
  * Sebastian Rivera
@@ -72,7 +72,7 @@ export function genLabel(node: TextNode, parent: SceneNode, root: boolean = fals
 /**
  * Returns an editable text field for the given text node
  *
- * Adding a lable will require that addition of a font. The font will have a
+ * Adding a label will require that addition of a font. The font will have a
  * name generated from its family, style, and size. It is the responsibility
  * of the developer to map this fint to the appropriate file.
  *

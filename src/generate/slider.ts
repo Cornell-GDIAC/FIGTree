@@ -44,7 +44,7 @@ import {
     convertLayoutMode,
 } from "../util";
 
-import { genChildrenByFloat, genChildrenByAnchor } from "./children";
+import { genChildrenByNoLayout, genChildrenByAnchor } from "./children";
 
 /**
  * Returns a slider corresponding to an annotated instance
@@ -90,9 +90,9 @@ export async function genSlider(node: InstanceNode, parent: SceneNode) {
     let children = undefined;
     let format = undefined;
     if (node.layoutMode != "NONE") {
-        children = await genChildrenByFloat(node, newChildren);
+        children = await genChildrenByNoLayout(node, newChildren);
         format = {
-            type: "FigmaAuto",
+            type: "NoLayout",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems

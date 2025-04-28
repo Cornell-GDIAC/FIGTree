@@ -22,7 +22,7 @@ import {
     convertLayoutMode,
 } from "../util";
 import { 
-    genChildrenByFloat, 
+    genChildrenByNoLayout, 
     genChildrenByAnchor 
 } from "./children";
 
@@ -42,9 +42,9 @@ export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode, r
     let children = undefined;
     let format = undefined;
     if ("layoutMode" in node && node.layoutMode != "NONE") {
-        children = await genChildrenByFloat(node);
+        children = await genChildrenByNoLayout(node);
         format = {
-            type: "FigmaAuto",
+            type: "NoLayout",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems

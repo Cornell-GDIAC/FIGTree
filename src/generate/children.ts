@@ -3,16 +3,10 @@
  *
  * Module for recursively generating children in a CUGL scene graphs.
  *
- * Generating children is not a simple recursive call. That is because we have
+ * Generating children is not a simple recursive call. That is because we have to
  * apply layouts to the children as well. We convert standard Figma layout
  * information to an anchor layout, which it maps very closely. We also 
- * provide some limited support for auto layout, as it is extremely close to
- * CUGL's float layout. However, there are two important differences:
- *
- * - CUGL will wrap a layout if it cannot fit in the surrounding frame
- * - CUGL will still include invisible children in the layout process
- *
- * Designers should be aware of these when working in Figma.
+ * provide support for auto layout which gets translated to no layout.
  *
  * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
  * Sebastian Rivera
@@ -21,7 +15,7 @@
 import { generateNode } from ".";
 import {
     CUGLNode,
-    CUGLFloatLayoutMixin,
+    CUGLNoLayoutMixin,
     CUGLAnchoredLayoutMixin,
 } from "../types";
 import {
@@ -50,33 +44,21 @@ function getCenter(node: SceneNode) {
     return [(node.x+right)/2,(node.y+top)/2];
 }
 
-// FLOAT LAYOUT
+// Auto Layout
 
-type FloatChildType = CUGLNode & CUGLFloatLayoutMixin["children"]["key"]
+type AutoChildType = CUGLNode & CUGLNoLayoutMixin["children"]["key"]
 
 /**
- * Returns a list of children arranged using a float layout
+ * Returns a list of children arranged using No layout
  *
- * This function converts an auto layout to a float layout in CUGL. While
- * these two are very similar, there are some important differences. First
- * of all, float layout always wraps to fit the container, while Figma auto
- * layout can spill outside of the bounds of the frame.  In addition, setting
- * a node as invisible removes it from the layout, while CUGL does not do 
- * this. It is important to keep these two things in mind when designing in
- * Figma for CUGL.
- *
- * The names of the children exclude any preprocessing directives (e.g names
- * before the colon).
- * 
- * Optionally, this function can take in some custom children to replace the
- * node's direct children.
+ * This function converts an auto layout to no layout in CUGL.
  * 
  * @param node  The parent node
  * @param children  Array of SceneNodes specifying a custom set of children.
  *
- * @return a list of children arranged using a float layout
+ * @return a list of children arranged using No Layout
  */
-export async function genChildrenByFloat(node: SceneNode, children? : SceneNode[]) : Promise<Record<string, FloatChildType>> {
+export async function genChildrenByNoLayout(node: SceneNode, children? : SceneNode[]) : Promise<Record<string, AutoChildType>> {
     const childNodes = children ?? node.children;
 
     const mode = ("layoutMode" in node && node.layoutMode === "HORIZONTAL");
@@ -87,7 +69,7 @@ export async function genChildrenByFloat(node: SceneNode, children? : SceneNode[
     const finalPadding = mode ? [0,node.paddingBottom,node.paddingRight,node.paddingTop]
                               : [node.paddingLeft,node.paddingBottom,node.paddingRight,0];
     
-    const result : Record<string, FloatChildType> = {};
+    const result : Record<string, AutoChildType> = {};
     const generatedChildren = await Promise.all(
         childNodes.map(async (child:SceneNode) => ({
             name: child.name,

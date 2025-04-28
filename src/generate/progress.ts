@@ -1,7 +1,8 @@
 /*
 NOTE: At the time of this development, progress bars in the Scenetool were identified
 as broken -- leaving us to scrap this function with figtree. Once progress bars 
-are fixed in CUGL, this functionality can be revisited.
+are fixed in CUGL, this functionality can be revisited and can most likely be
+Implemented by treating a loading bar as a 3 patch.
 /
 
 /*

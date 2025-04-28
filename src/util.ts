@@ -15,7 +15,7 @@
 
 import {
     CUGLAnchoredLayoutMixin,
-    CUGLFloatLayoutMixin,
+    CUGLNoLayoutMixin,
     CUGLLabelNode,
 } from "./types";
 
@@ -109,10 +109,10 @@ export const convertTextAlignHorizontal = (value: TextNode["textAlignHorizontal"
 
 
 /**
- * The supported layout modes for a FloatLayout
+ * The supported layout modes for No Layout (Figma Auto Layout)
  */
 export const convertLayoutMode = (value: Exclude<AutoLayoutMixin["layoutMode"], "NONE">,
-    ): CUGLFloatLayoutMixin["format"]["orientation"] => {
+    ): CUGLNoLayoutMixin["format"]["orientation"] => {
     switch (value) {
     case "HORIZONTAL":
         return "horizontal";
@@ -123,13 +123,13 @@ export const convertLayoutMode = (value: Exclude<AutoLayoutMixin["layoutMode"], 
 
 
 /**
- * The x-axis alignment for FloatLayout and AnchorLayout
+ * The x-axis alignment for No Layout and AnchorLayout
  */
 export const convertXAlign = (
     value:
         | FrameNode["primaryAxisAlignItems"]
         | FrameNode["counterAxisAlignItems"],
-    ): CUGLFloatLayoutMixin["format"]["x_alignment"] => {
+    ): CUGLNoLayoutMixin["format"]["x_alignment"] => {
     switch (value) {
     case "MIN":
         return "left";
@@ -144,13 +144,13 @@ export const convertXAlign = (
 
 
 /**
- * The y-axis alignment for FloatLayout and AnchorLayout
+ * The y-axis alignment for No Layout and AnchorLayout
  */
 export const convertYAlign = (
     value:
         | FrameNode["primaryAxisAlignItems"]
         | FrameNode["counterAxisAlignItems"],
-    ): CUGLFloatLayoutMixin["format"]["y_alignment"] => {
+    ): CUGLNoLayoutMixin["format"]["y_alignment"] => {
     switch (value) {
     case "MIN":
         return "top";

@@ -24,7 +24,7 @@ import {
     convertLayoutMode,
 } from "../util";
 import { 
-    genChildrenByFloat, 
+    genChildrenByNoLayout, 
     genChildrenByAnchor 
 } from "./children";
 
@@ -44,9 +44,9 @@ export async function genComponent(node: ComponentNode, parent: SceneNode, root:
     let children = undefined;
     let format = undefined;
     if (node.layoutMode != "NONE") {
-        children = await genChildrenByFloat(node);
+        children = await genChildrenByNoLayout(node);
         format = {
-            type: "FigmaAuto",
+            type: "NoLayout",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems

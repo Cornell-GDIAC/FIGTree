@@ -6,7 +6,7 @@
  * Currently we have types the following nodes from scene2 in CUGL: Node, Image,
  * Poly, Path, Wire, Sprite, NinePatch, Label, Button, Slider, and
  * Textfield.  However, not all of the these types are currently supported.
- * Set the "generate" package for the list of supported types.
+ * See the "generate" package for the list of supported types.
  *
  * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, 
  * Joaquin Rivera, Sebastian Rivera
@@ -240,7 +240,7 @@ export type CUGLPathNode = {
  * Supported Figma to CUGL format types
  */
 export type CUGLFormatType = {
-    type: "Figma" | "FigmaAuto";
+    type: "Figma" | "NoLayout";
     orientation?: "horizontal" | "vertical";
     x_alignment?: "left" | "center" | "right";
     y_alignment?: "bottom" | "middle" | "top";
@@ -270,9 +270,9 @@ export type CUGLAnchoredLayoutMixin = {
 
 
 /**
- * Layout information for a float layout
+ * Layout information for an auto layout (In the backend it doesn't use a layout)
  */
-export type CUGLFloatLayoutMixin = {
+export type CUGLNoLayoutMixin = {
     format: CUGLFormatType;
     children: {
         [key: string]: {
@@ -288,9 +288,9 @@ export type CUGLFloatLayoutMixin = {
 /**
  * A type for supported layouts
  *
- * Figma only supports anchor and float layout
+ * Figma only supports anchor and no layout
  */
-export type CUGLLayoutMixin = {} | CUGLAnchoredLayoutMixin | CUGLFloatLayoutMixin;
+export type CUGLLayoutMixin = {} | CUGLAnchoredLayoutMixin | CUGLNoLayoutMixin;
 
 
 /**

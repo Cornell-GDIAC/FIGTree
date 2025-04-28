@@ -32,12 +32,12 @@ import {
     convertLayoutMode,
 } from "../util";
 
-import { genChildrenByFloat, genChildrenByAnchor } from "./children";
+import { genChildrenByNoLayout, genChildrenByAnchor } from "./children";
 
 /**
  * Returns a button corresponding to an annotated instance
  *
- * This function takes the instance given and turns it into a button.If there is 
+ * This function takes the instance given and turns it into a button. If there is 
  * only one variant, that is the up node. Otherwise it looks for a varaint named 
  * "up". If there is no such node, it picks the first one.
  * 
@@ -95,7 +95,7 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
     if (node.layoutMode != "NONE") {
         children = await genChildrenByFloat(node);
         format = {
-            type: "FigmaAuto",
+            type: "NoLayout",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems
@@ -214,7 +214,7 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
     if (node.layoutMode != "NONE") {
         children = await genChildrenByFloat(node, newChildren);
         format = {
-            type: "FigmaAuto",
+            type: "NoLayout",
             x_alignment: convertXAlign(
                             node.layoutMode === "HORIZONTAL"
                                 ? node.primaryAxisAlignItems
