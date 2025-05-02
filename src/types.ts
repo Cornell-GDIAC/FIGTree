@@ -47,7 +47,7 @@ type CUGLNodeType =
  * The data component of a standard node.
  */
 type Data = {
-    position?: CUGLXY;
+    position: CUGLXY;
     size?: CUGLXY;
     anchor?: CUGLXY;
     scale?: number | CUGLXY;

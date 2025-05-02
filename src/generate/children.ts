@@ -137,10 +137,18 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
     
     cuglChild.data.anchor = [0.5, 0.5];
     let [l_offset, t_offset] = getCenter(child);
+    
+    if (setPosition){
+        l_offset -= child.x;
+        t_offset -= child.y;
+    }
 
-    if (child.type === 'LINE'){
-        l_offset += -Math.sin(child.rotation * Math.PI/180) * (child.strokeWeight as number)/2;
-        t_offset += Math.cos(child.rotation * Math.PI/180) * (child.strokeWeight as number)/2;
+    if (child.type === 'LINE') {
+        const theta = child.rotation * Math.PI / 180;
+        const offsetX = -Math.sin(theta) * (child.strokeWeight as number) / 2;
+        const offsetY = -Math.cos(theta) * (child.strokeWeight as number) / 2;
+        l_offset += offsetX;
+        t_offset += offsetY;
     }
     
     t_offset = parent.height ? parent.height - t_offset : -t_offset;
@@ -203,10 +211,10 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
         b_offset /= parent.height;
     }
     
-    let left_offset = setPosition? 0 : roundToFixed(l_offset,2);
-    let right_offset = setPosition? 0 : roundToFixed(r_offset,2);
-    let top_offset = setPosition? 0 : roundToFixed(t_offset,2);
-    let bottom_offset = setPosition? 0 : roundToFixed(b_offset,2);
+    let left_offset = roundToFixed(l_offset,2);
+    let right_offset = roundToFixed(r_offset,2);
+    let top_offset = roundToFixed(t_offset,2);
+    let bottom_offset = roundToFixed(b_offset,2);
     return {
         ...cuglChild,
         layout: {

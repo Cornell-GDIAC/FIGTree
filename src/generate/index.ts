@@ -183,7 +183,7 @@ const getOutputFormat = () => {
  * @return the CUGL scene graph from the top level node
  */
 export const generate = async (node: SceneNode, root : boolean = false): Promise<CUGLNode | CUGLWidget> => {
-    let cuglNode = await generateNode(node);
+    let cuglNode = await generateNode(node, root);
     switch (getOutputFormat()) {
     case "node":
         return cuglNode;
