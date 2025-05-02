@@ -383,7 +383,7 @@ export function genPath(node: LineNode, parent: SceneNode, root: boolean = false
 
     let ypos = parent.height ? parent.height - node.height - 
         (node.y + Math.cos(node.rotation * Math.PI/180)*(node.strokeWeight as number)/2)
-         : -(node.y + Math.cos(node.rotation * Math.PI/180)*(node.strokeWeight as number)/2);
+         : -(node.y - Math.cos(node.rotation * Math.PI/180)*(node.strokeWeight as number)/2);
 
     const pathCode: CUGLPathNode = {
         type: "Path",
