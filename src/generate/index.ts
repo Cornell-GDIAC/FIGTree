@@ -184,7 +184,6 @@ const getOutputFormat = () => {
  */
 export const generate = async (node: SceneNode, root : boolean = false): Promise<CUGLNode | CUGLWidget> => {
     let cuglNode = await generateNode(node, root);
-    console.log(node);
     switch (getOutputFormat()) {
     case "node":
         return cuglNode;

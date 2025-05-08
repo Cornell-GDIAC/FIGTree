@@ -75,8 +75,6 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
           horizontal: parent.primaryAxisAlignItems as ConstraintType,
           vertical: parent.counterAxisAlignItems as ConstraintType,
         };
-        console.log(parent.primaryAxisAlignItems);
-        console.log(constraints);
       }
     
     const x_anchor = convertXAnchor(constraints?.horizontal);
