@@ -36,13 +36,8 @@ import {
   CUGLChildrenMixin,
   CUGLFormatType,
 } from "../types";
-import {
-    convertXAlign,
-    convertYAlign,
-    convertLayoutMode,
-} from "../util";
 
-import { genChildrenByNoLayout, genChildrenByAnchor } from "./children";
+import { genChildrenByAnchor } from "./children";
 
 /**
  * Returns a button corresponding to an annotated instance
@@ -103,28 +98,10 @@ async function genButtonFromComponent(node: InstanceNode, parent: SceneNode){
     // Layout the children
     let children = undefined;
     let format = undefined;
-    if (node.layoutMode != "NONE") {
-        children = await genChildrenByNoLayout(node);
-        format = {
-            type: "NoLayout",
-            x_alignment: convertXAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.primaryAxisAlignItems
-                                : node.counterAxisAlignItems,
-                            ),
-            y_alignment: convertYAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.counterAxisAlignItems
-                                : node.primaryAxisAlignItems,
-                            ),
-            orientation: convertLayoutMode(node.layoutMode),
-        } as CUGLFormatType;
-    } else {
-        children = await genChildrenByAnchor(node);
-        format = {
-            type: "Figma",
-        } as CUGLFormatType;
-    }
+    children = await genChildrenByAnchor(node);
+    format = {
+        type: "Figma",
+    } as CUGLFormatType;
     
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const buttonCode: CUGLButtonNode & CUGLChildrenMixin & CUGLLayoutMixin = {
@@ -231,28 +208,10 @@ async function genButtonFromComponentSet(node: InstanceNode, parent: SceneNode){
     // Layout the children
     let children = undefined;
     let format = undefined;
-    if (node.layoutMode != "NONE") {
-        children = await genChildrenByNoLayout(node, newChildren);
-        format = {
-            type: "NoLayout",
-            x_alignment: convertXAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.primaryAxisAlignItems
-                                : node.counterAxisAlignItems,
-                            ),
-            y_alignment: convertYAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.counterAxisAlignItems
-                                : node.primaryAxisAlignItems,
-                            ),
-            orientation: convertLayoutMode(node.layoutMode),
-        } as CUGLFormatType;
-    } else {
-        children = await genChildrenByAnchor(node, newChildren, true);
-        format = {
-            type: "Figma",
-        } as CUGLFormatType;
-    }
+    children = await genChildrenByAnchor(node, newChildren, true);
+    format = {
+        type: "Figma",
+    } as CUGLFormatType;
     
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const buttonCode: CUGLButtonNode & CUGLChildrenMixin & CUGLLayoutMixin = {

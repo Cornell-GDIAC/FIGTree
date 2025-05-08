@@ -15,7 +15,6 @@
 
 import {
     CUGLAnchoredLayoutMixin,
-    CUGLNoLayoutMixin,
     CUGLLabelNode,
 } from "./types";
 
@@ -105,62 +104,6 @@ export const convertTextAlignHorizontal = (value: TextNode["textAlignHorizontal"
     case "JUSTIFIED":
         return "justify";
     }
-};
-
-
-/**
- * The supported layout modes for No Layout (Figma Auto Layout)
- */
-export const convertLayoutMode = (value: Exclude<AutoLayoutMixin["layoutMode"], "NONE">,
-    ): CUGLNoLayoutMixin["format"]["orientation"] => {
-    switch (value) {
-    case "HORIZONTAL":
-        return "horizontal";
-    case "VERTICAL":
-        return "vertical";
-    }
-};
-
-
-/**
- * The x-axis alignment for No Layout and AnchorLayout
- */
-export const convertXAlign = (
-    value:
-        | FrameNode["primaryAxisAlignItems"]
-        | FrameNode["counterAxisAlignItems"],
-    ): CUGLNoLayoutMixin["format"]["x_alignment"] => {
-    switch (value) {
-    case "MIN":
-        return "left";
-    case "MAX":
-        return "right";
-    case "CENTER":
-        return "center";
-    default:
-        throw new Error(`${value} is not supported for ConvertXAlign`,);
-  }
-};
-
-
-/**
- * The y-axis alignment for No Layout and AnchorLayout
- */
-export const convertYAlign = (
-    value:
-        | FrameNode["primaryAxisAlignItems"]
-        | FrameNode["counterAxisAlignItems"],
-    ): CUGLNoLayoutMixin["format"]["y_alignment"] => {
-    switch (value) {
-    case "MIN":
-        return "top";
-    case "MAX":
-        return "bottom";
-    case "CENTER":
-        return "middle";
-    default:
-        return undefined;
-  }
 };
 
 

@@ -238,13 +238,10 @@ export type CUGLPathNode = {
 };
 
 /**
- * Supported Figma to CUGL format types
+ * Supported Figma to CUGL format types (can be added to in future use)
  */
 export type CUGLFormatType = {
-    type: "Figma" | "NoLayout";
-    orientation?: "horizontal" | "vertical";
-    x_alignment?: "left" | "center" | "right";
-    y_alignment?: "bottom" | "middle" | "top";
+    type: "Figma";
 }
 
 
@@ -271,27 +268,11 @@ export type CUGLAnchoredLayoutMixin = {
 
 
 /**
- * Layout information for an auto layout (In the backend it doesn't use a layout)
- */
-export type CUGLNoLayoutMixin = {
-    format: CUGLFormatType;
-    children: {
-        [key: string]: {
-            layout: {
-                priority: number;
-                padding?: CUGLLBRT
-            };
-        };
-    };
-};
-
-
-/**
  * A type for supported layouts
  *
  * Figma only supports anchor and no layout
  */
-export type CUGLLayoutMixin = {} | CUGLAnchoredLayoutMixin | CUGLNoLayoutMixin;
+export type CUGLLayoutMixin = {} | CUGLAnchoredLayoutMixin
 
 
 /**

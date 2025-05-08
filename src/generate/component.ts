@@ -18,13 +18,7 @@ import {
   CUGLChildrenMixin,
   CUGLFormatType,
 } from "../types";
-import {
-    convertXAlign,
-    convertYAlign,
-    convertLayoutMode,
-} from "../util";
-import { 
-    genChildrenByNoLayout, 
+import {  
     genChildrenByAnchor 
 } from "./children";
 
@@ -43,28 +37,10 @@ import {
 export async function genComponent(node: ComponentNode, parent: SceneNode, root: boolean = false) {
     let children = undefined;
     let format = undefined;
-    if (node.layoutMode != "NONE") {
-        children = await genChildrenByNoLayout(node);
-        format = {
-            type: "NoLayout",
-            x_alignment: convertXAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.primaryAxisAlignItems
-                                : node.counterAxisAlignItems,
-                            ),
-            y_alignment: convertYAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.counterAxisAlignItems
-                                : node.primaryAxisAlignItems,
-                            ),
-            orientation: convertLayoutMode(node.layoutMode),
-        }as CUGLFormatType; 
-    } else {
-        children = await genChildrenByAnchor(node);
-        format = {
-            type: "Figma",
-        }as CUGLFormatType;
-    }
+    children = await genChildrenByAnchor(node);
+    format = {
+        type: "Figma",
+    } as CUGLFormatType;
     
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const frameCode: CUGLBaseNode & CUGLChildrenMixin & CUGLLayoutMixin = {

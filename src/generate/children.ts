@@ -15,7 +15,6 @@
 import { generateNode } from ".";
 import {
     CUGLNode,
-    CUGLNoLayoutMixin,
     CUGLAnchoredLayoutMixin,
 } from "../types";
 import {
@@ -44,64 +43,8 @@ function getCenter(node: SceneNode) {
     return [(node.x+right)/2,(node.y+top)/2];
 }
 
-// Auto Layout
 
-type AutoChildType = CUGLNode & CUGLNoLayoutMixin["children"]["key"]
-
-/**
- * Returns a list of children arranged using No layout
- *
- * This function converts an auto layout to no layout in CUGL.
- * 
- * @param node  The parent node
- * @param children  Array of SceneNodes specifying a custom set of children.
- *
- * @return a list of children arranged using No Layout
- */
-export async function genChildrenByNoLayout(node: SceneNode, children? : SceneNode[]) : Promise<Record<string, AutoChildType>> {
-    const childNodes = children ?? node.children;
-
-    const mode = ("layoutMode" in node && node.layoutMode === "HORIZONTAL");
-    const startPadding = mode ? [node.paddingLeft,node.paddingBottom,node.itemSpacing,node.paddingTop]
-                              : [node.paddingLeft,node.itemSpacing,node.paddingRight,node.paddingTop];
-    const interPadding = mode ? [0,node.paddingBottom,node.itemSpacing,node.paddingTop]
-                              : [node.paddingLeft,node.itemSpacing,node.paddingRight,0];
-    const finalPadding = mode ? [0,node.paddingBottom,node.paddingRight,node.paddingTop]
-                              : [node.paddingLeft,node.paddingBottom,node.paddingRight,0];
-    
-    const result : Record<string, AutoChildType> = {};
-    const generatedChildren = await Promise.all(
-        childNodes.map(async (child:SceneNode) => ({
-            name: child.name,
-            node: await generateNode(child),
-        })),
-    );
-    
-    generatedChildren.forEach(({ name, node }, index) => {
-        const child = childNodes[index];     
-        const parent = child.parent as SceneNode;
-        const key = name in result ? `${name}_${index.toString()}` : name;
-        
-        // Recenter the node
-        node.data.position = getCenter(child);
-        node.data.anchor = [0.5,0.5];
-        node.data.position[1] = parent.height ? parent.height - node.data.position[1] : -node.data.position[1];
-        const padding = (index == 0) ? startPadding : (index == generatedChildren.length-1)
-                                     ? finalPadding : interPadding;
-        result[key] = {
-            ...node,
-            layout: {
-                priority: index,
-                padding,
-            },
-        };
-    });
-    
-    return result;
-}
-
-
-// ANCHOR LAYOUT
+// Figma/Anchor LAYOUT
 
 export type AnchorChildType = CUGLNode & CUGLAnchoredLayoutMixin["children"]["key"];
 
@@ -126,7 +69,15 @@ export type AnchorChildType = CUGLNode & CUGLAnchoredLayoutMixin["children"]["ke
  */
 export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_absolute:boolean, setPosition? : boolean) : Promise<AnchorChildType> {
     const parent = child.parent as SceneNode;
-    const constraints = "constraints" in child ? child.constraints : undefined;
+    let constraints = "constraints" in child ? child.constraints : undefined;
+    if ("layoutMode" in parent && parent.layoutMode !== "NONE") {
+        constraints = {
+          horizontal: parent.primaryAxisAlignItems as ConstraintType,
+          vertical: parent.counterAxisAlignItems as ConstraintType,
+        };
+        console.log(parent.primaryAxisAlignItems);
+        console.log(constraints);
+      }
     
     const x_anchor = convertXAnchor(constraints?.horizontal);
     const y_anchor = convertYAnchor(constraints?.vertical);
@@ -211,10 +162,10 @@ export async function layoutByAnchor(child: SceneNode, x_absolute: boolean, y_ab
         b_offset /= parent.height;
     }
     
-    let left_offset = roundToFixed(l_offset,2);
-    let right_offset = roundToFixed(r_offset,2);
-    let top_offset = roundToFixed(t_offset,2);
-    let bottom_offset = roundToFixed(b_offset,2);
+    let left_offset = roundToFixed(l_offset,4);
+    let right_offset = roundToFixed(r_offset,4);
+    let top_offset = roundToFixed(t_offset,4);
+    let bottom_offset = roundToFixed(b_offset,4);
     return {
         ...cuglChild,
         layout: {

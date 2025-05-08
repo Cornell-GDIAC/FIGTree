@@ -57,26 +57,9 @@ Implemented by treating a loading bar as a 3 patch.
 //     // Layout the children
 //     let children = undefined;
 //     let format = undefined;
-//     if (node.layoutMode != "NONE") {
-//         format = {
-//             type: "FigmaAuto",
-//             x_alignment: convertXAlign(
-//                             node.layoutMode === "HORIZONTAL"
-//                                 ? node.primaryAxisAlignItems
-//                                 : node.counterAxisAlignItems,
-//                             ),
-//             y_alignment: convertYAlign(
-//                             node.layoutMode === "HORIZONTAL"
-//                                 ? node.counterAxisAlignItems
-//                                 : node.primaryAxisAlignItems,
-//                             ),
-//             orientation: convertLayoutMode(node.layoutMode),
-//         } as CUGLFormatType;
-//     } else {
-//         format = {
-//             type: "Figma",
-//         } as CUGLFormatType;
-//     }
+//     format = {
+//         type: "Figma",
+//     } as CUGLFormatType;
     
 //     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
 //     const progressCode: CUGLProgressNode & CUGLChildrenMixin & CUGLLayoutMixin = {

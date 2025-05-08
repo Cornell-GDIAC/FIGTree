@@ -38,13 +38,8 @@ import {
   CUGLChildrenMixin,
   CUGLFormatType,
 } from "../types";
-import {
-    convertXAlign,
-    convertYAlign,
-    convertLayoutMode,
-} from "../util";
 
-import { genChildrenByNoLayout, genChildrenByAnchor } from "./children";
+import { genChildrenByAnchor } from "./children";
 
 /**
  * Returns a slider corresponding to an annotated instance
@@ -89,28 +84,10 @@ export async function genSlider(node: InstanceNode, parent: SceneNode) {
     // Layout the children
     let children = undefined;
     let format = undefined;
-    if (node.layoutMode != "NONE") {
-        children = await genChildrenByNoLayout(node, newChildren);
-        format = {
-            type: "NoLayout",
-            x_alignment: convertXAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.primaryAxisAlignItems
-                                : node.counterAxisAlignItems,
-                            ),
-            y_alignment: convertYAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.counterAxisAlignItems
-                                : node.primaryAxisAlignItems,
-                            ),
-            orientation: convertLayoutMode(node.layoutMode),
-        } as CUGLFormatType;
-    } else {
-        children = await genChildrenByAnchor(node, newChildren);
-        format = {
-            type: "Figma",
-        } as CUGLFormatType;
-    }
+    children = await genChildrenByAnchor(node, newChildren);
+    format = {
+        type: "Figma",
+    } as CUGLFormatType;
     
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const sliderCode: CUGLSliderNode & CUGLChildrenMixin & CUGLLayoutMixin = {

@@ -20,13 +20,7 @@ import {
   CUGLChildrenMixin,
   CUGLFormatType,
 } from "../types";
-import {
-    convertXAlign,
-    convertYAlign,
-    convertLayoutMode,
-} from "../util";
 import { 
-    genChildrenByNoLayout, 
     genChildrenByAnchor 
 } from "./children";
 import { genButton } from "./button";
@@ -69,29 +63,11 @@ export async function genInstance(node: InstanceNode, parent: SceneNode, root: b
     // Layout the children
     let children = undefined;
     let format = undefined;
-    if (node.layoutMode != "NONE") {
-        children = await genChildrenByNoLayout(node);
-        format = {
-            type: "NoLayout",
-            x_alignment: convertXAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.primaryAxisAlignItems
-                                : node.counterAxisAlignItems,
-                            ),
-            y_alignment: convertYAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.counterAxisAlignItems
-                                : node.primaryAxisAlignItems,
-                            ),
-            orientation: convertLayoutMode(node.layoutMode),
-        }as CUGLFormatType; 
-    } else {
-        children = await genChildrenByAnchor(node);
-        format = {
-            type: "Figma",
-        }as CUGLFormatType;
-    }
-    
+    children = await genChildrenByAnchor(node);
+    format = {
+        type: "Figma",
+    } as CUGLFormatType;
+
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const frameCode: CUGLBaseNode & CUGLChildrenMixin & CUGLLayoutMixin = {
         type: "Node",
