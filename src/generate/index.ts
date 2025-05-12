@@ -188,6 +188,7 @@ export const generate = async (node: SceneNode, root : boolean = false): Promise
     case "node":
         return cuglNode;
     case "widget":
+        cuglNode.data.anchor = [0.5, 0.5]; // Layout manager applied to widget instance (layout manager requires centered anchor)
         return {
             variables: {},
             contents: cuglNode,
