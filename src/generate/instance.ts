@@ -1,12 +1,16 @@
 /*
- * frame.ts
+ * instance.ts
  *
- * Module generating CUGL generic scene nodes.
+ * Module generating CUGL generic scene nodes or special UI.
  *
  * In CUGL, scene nodes are used to group together individual elements into a
  * single coordinate space. They serve the same purpose as frames in Figma.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
+ * If a special UI tag is assigned to the instance, they will be parsed as that
+ * special UI rather than just a frame.
+ * 
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
  * Date: 1/24/24
  */
 import { roundToFixed } from "../util";
@@ -14,55 +18,56 @@ import {
   CUGLBaseNode,
   CUGLLayoutMixin,
   CUGLChildrenMixin,
+  CUGLFormatType,
 } from "../types";
-import {
-    convertXAlign,
-    convertYAlign,
-    convertLayoutMode,
-} from "../util";
 import { 
-    genChildrenByFloat, 
     genChildrenByAnchor 
 } from "./children";
+import { genButton } from "./button";
+import { genTextField } from "./text";
+import { genSlider } from "./slider";
 
 /**
- * Returns a scene node corresponding to the given frame
+ * Returns a instance node corresponding to the given frame
  *
- * This function assumes that this is not a tagged frame, and is therefore
- * not a special UI element.
+ * This function checks whether the instance is a special
+ * UI element and generates each accordingly.
  *
- * @param node      The frame to convert
- * @param parent    The parent of the frame
+ * @param node      The instance to convert
+ * @param parent    The parent of the instance
+ * @param root      True if root node, false otherwise
  *
- * @return a scene node corresponding to the given frame
+ * @return an instance node corresponding to the given instance
  */
-export async function genInstance(node: SceneNode, parent: SceneNode) {
+export async function genInstance(node: InstanceNode, parent: SceneNode, root: boolean = false) {
+    let tag = undefined;
+    if (node.componentProperties) {
+        for (const key in node.componentProperties) {
+            if (key.startsWith("Tag")) { // Find key that starts with "Tag"
+                tag = node.componentProperties[key].value;
+            }
+        }
+    }
+    if (typeof(tag) === 'string'){
+        switch(tag.toLowerCase()){
+            case "button":
+                return genButton(node, parent);
+            case "textfield":
+                return genTextField(node.children[0] as TextNode, parent);
+            case "slider":
+                return genSlider(node, parent);
+            default:
+                break;
+        }
+    }
     // Layout the children
     let children = undefined;
     let format = undefined;
-    if (node.layoutMode != "NONE") {
-        children = await genChildrenByFloat(node);
-        format = {
-            type: "Float",
-            x_alignment: convertXAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.primaryAxisAlignItems
-                                : node.counterAxisAlignItems,
-                            ),
-            y_alignment: convertYAlign(
-                            node.layoutMode === "HORIZONTAL"
-                                ? node.counterAxisAlignItems
-                                : node.primaryAxisAlignItems,
-                            ),
-            orientation: convertLayoutMode(node.layoutMode),
-        };
-    } else {
-        children = await genChildrenByAnchor(node);
-        format = {
-            type: "Anchored",
-        };
-    }
-    
+    children = await genChildrenByAnchor(node);
+    format = {
+        type: "Figma",
+    } as CUGLFormatType;
+
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const frameCode: CUGLBaseNode & CUGLChildrenMixin & CUGLLayoutMixin = {
         type: "Node",
@@ -71,7 +76,7 @@ export async function genInstance(node: SceneNode, parent: SceneNode) {
             anchor: [0, 0],
             size: [roundToFixed(node.width,2), roundToFixed(node.height,2)],
             angle: node.rotation,
-            position: [roundToFixed(node.x,2), roundToFixed(ypos,2)],
+            position: root? [0,0] : [roundToFixed(node.x,2), roundToFixed(ypos,2)],
             visible: node.visible,
         },
         children,

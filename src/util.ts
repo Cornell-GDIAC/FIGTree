@@ -8,13 +8,13 @@
  *
  * This module also contains several other utility functions.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
+ * Date: 4/27/25
  */
 
 import {
     CUGLAnchoredLayoutMixin,
-    CUGLFloatLayoutMixin,
     CUGLLabelNode,
 } from "./types";
 
@@ -27,7 +27,7 @@ import {
  *
  * @return a number rounded to the specified number of decimal places
  */
-export function roundToFixed(value, places){
+export function roundToFixed(value: number, places: number){
 	let epsilon = 0.00001;
 	if (value < epsilon && value > -epsilon) {
 		return 0;
@@ -108,88 +108,24 @@ export const convertTextAlignHorizontal = (value: TextNode["textAlignHorizontal"
 
 
 /**
- * The supported layout modes for a FloatLayout
- */
-export const convertLayoutMode = (value: Exclude<AutoLayoutMixin["layoutMode"], "NONE">,
-    ): CUGLFloatLayoutMixin["format"]["orientation"] => {
-    switch (value) {
-    case "HORIZONTAL":
-        return "horizontal";
-    case "VERTICAL":
-        return "vertical";
-    }
-};
-
-
-/**
- * The x-axis alignment for FloatLayout and AnchorLayout
- */
-export const convertXAlign = (
-    value:
-        | FrameNode["primaryAxisAlignItems"]
-        | FrameNode["counterAxisAlignItems"],
-    ): CUGLFloatLayoutMixin["format"]["x_alignment"] => {
-    switch (value) {
-    case "MIN":
-        return "left";
-    case "MAX":
-        return "right";
-    case "CENTER":
-        return "center";
-    case "SPACE_BETWEEN":
-        return "space between";
-    case "BASELINE":
-        return "baseline";
-        //throw new Error(`${value} is not supported`);
-  }
-};
-
-
-/**
- * The y-axis alignment for FloatLayout and AnchorLayout
- */
-export const convertYAlign = (
-    value:
-        | FrameNode["primaryAxisAlignItems"]
-        | FrameNode["counterAxisAlignItems"],
-    ): CUGLFloatLayoutMixin["format"]["y_alignment"] => {
-    switch (value) {
-    case "MIN":
-        return "top";
-    case "MAX":
-        return "bottom";
-    case "CENTER":
-        return "middle";
-    case "SPACE_BETWEEN":
-        return "space between";
-    case "BASELINE":
-        return "baseline";
-        //throw new Error(`${value} is not supported`);
-  }
-};
-
-
-/**
  * The x-axis anchor value for an entity
  */
 export const convertXAnchor = (
     value?: RectangleNode["constraints"]["horizontal"],
-    ): [
-        number,
-        CUGLAnchoredLayoutMixin["children"]["key"]["layout"]["x_anchor"],
-    ] => {
+    ): CUGLAnchoredLayoutMixin["children"]["key"]["layout"]["x_anchor"] => {
     switch (value) {
     case "MIN":
-        return [0, "left"];
+        return "left";
     case "CENTER":
-        return [0.5, "center"];
+        return "center";
     case "MAX":
-        return [1, "right"];
+        return "right";
     case "STRETCH":
-        return [0.5, "fill"];
+        return "left+right";
     case "SCALE":
+        return "scale";
     default:
-        return [0, "left"];
+        return "left";
   }
 };
 
@@ -199,22 +135,20 @@ export const convertXAnchor = (
  */
 export const convertYAnchor = (
     value?: RectangleNode["constraints"]["vertical"],
-    ): [
-        number,
-        CUGLAnchoredLayoutMixin["children"]["key"]["layout"]["y_anchor"],
-    ] => {
+    ): CUGLAnchoredLayoutMixin["children"]["key"]["layout"]["y_anchor"] => {
     switch (value) {
     case "MIN":
-        return [1, "top"];
+        return "top";
     case "CENTER":
-        return [0.5, "middle"];
+        return "middle";
     case "MAX":
-        return [0, "bottom"];
+        return "bottom";
     case "STRETCH":
-        return [0.5, "fill"]
+        return "top+bottom";
     case "SCALE":
+        return "scale";
     default:
-        return [0, "bottom"];
+        return "bottom";
   }
 };
 

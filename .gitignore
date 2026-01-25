@@ -9,3 +9,5 @@ dist/
 code.js
 
 release.zip
+pnpm-lock.yaml
+/release

@@ -4,9 +4,10 @@
  * Module generating CUGL text nodes.
  *
  * We support both label and text field nodes. A text field in Figma is simply
- * a text object with the tag "edit" before its name.
+ * an instance object with the tag "edit" with a singular child text node.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
  * Date: 1/24/24
  */
 import { CUGLLabelNode, CUGLTextFieldNode, CUGLChildrenMixin } from "../types";
@@ -22,10 +23,11 @@ import { fontHashMap } from "./index";
  *
  * @param node      The image node
  * @param parent    The image parent
+ * @param root      True if this is the root node false otherwise.
  *
  * @return an (uneditable) label for the given text node
  */
-export function genLabel(node: TextNode, parent: SceneNode) {
+export function genLabel(node: TextNode, parent: SceneNode, root: boolean = false) {
     // Construct color array for the foreground
     const color = (node.fills as Paint[])[0] as SolidPaint;
     const colorCode = hexColor(color);
@@ -34,17 +36,16 @@ export function genLabel(node: TextNode, parent: SceneNode) {
     let fname  = (node.fontName as FontName).family.toLowerCase();
     let fstyle = (node.fontName as FontName).style.toLowerCase();
     fstyle = fstyle[0].toUpperCase() + fstyle.slice(1);
-    let fsize  = node.fontSize;
+    let fsize  = node.fontSize as number;
     const fkey = fname+fstyle+fsize;
     
-    // TODO: Not sure how to get padding
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     let textCode: CUGLLabelNode & CUGLChildrenMixin = {
         type: "Label",
         data: {
             anchor: [0, 0],
             size: [node.width, node.height],
-            position: [node.x, ypos],
+            position: root? [0,0] : [node.x, ypos],
             angle: node.rotation,
             visible: node.visible,
             font: fkey,
@@ -71,7 +72,7 @@ export function genLabel(node: TextNode, parent: SceneNode) {
 /**
  * Returns an editable text field for the given text node
  *
- * Adding a lable will require that addition of a font. The font will have a
+ * Adding a label will require that addition of a font. The font will have a
  * name generated from its family, style, and size. It is the responsibility
  * of the developer to map this fint to the appropriate file.
  *
@@ -93,10 +94,9 @@ export function genTextField(node: TextNode, parent: SceneNode) {
     let fname  = (node.fontName as FontName).family.toLowerCase();
     let fstyle = (node.fontName as FontName).style.toLowerCase();
     fstyle = fstyle[0].toUpperCase() + fstyle.slice(1);
-    let fsize  = node.fontSize;
+    let fsize  = node.fontSize as number;
     const fkey = fname+fstyle+fsize;
     
-    // TODO: Not sure how to get padding
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     let textCode: CUGLTextFieldNode & CUGLChildrenMixin = {
         type: "TextField",

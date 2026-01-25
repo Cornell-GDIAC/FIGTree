@@ -4,12 +4,13 @@
  * Supported CUGL types in Figma
  *
  * Currently we have types the following nodes from scene2 in CUGL: Node, Image,
- * Poly, Path, Wire, Sprite, NinePatch, Label, Button, Progress, Slider, and
+ * Poly, Path, Wire, Sprite, NinePatch, Label, Button, Slider, and
  * Textfield.  However, not all of the these types are currently supported.
- * Set the "generate" package for the list of supported types.
+ * See the "generate" package for the list of supported types.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, 
+ * Joaquin Rivera, Sebastian Rivera
+ * Date: 4/27/25
  */
 
 // Whether to export as a scenegraph node or a widget.
@@ -25,7 +26,7 @@ type CUGLLBRT = [number, number, number, number];
 // A numeric range
 //type CUGLMinMax = [number, number];
 // An RGBA color as a numeric value
-type CUGLRGBA = [number, number, number, number];
+export type CUGLRGBA = [number, number, number, number];
 
 
 /**
@@ -34,20 +35,19 @@ type CUGLRGBA = [number, number, number, number];
 type CUGLNodeType =
     | CUGLBaseNode
     | CUGLButtonNode
+    | CUGLSliderNode
     | CUGLLabelNode
     | CUGLTextFieldNode
     | CUGLImageNode
     | CUGLRectNode
     | CUGLPolyNode
     | CUGLPathNode
-    | CUGLSVGNode
-
 
 /**
  * The data component of a standard node.
  */
 type Data = {
-    position?: CUGLXY;
+    position: CUGLXY;
     size?: CUGLXY;
     anchor?: CUGLXY;
     scale?: number | CUGLXY;
@@ -103,8 +103,25 @@ export type CUGLButtonNode = {
     data: Data & {
         upnode: string;
         downnode?: string | CUGLRGBA;
+        toggle?: boolean;
     };
 };
+
+/**
+ * A slider node
+ */
+export type CUGLSliderNode = {
+    type: "Slider";
+    data: Data & {
+        bounds: number[];
+        range?: number[];
+        value?: number;
+        tick?: number;
+        snap?: boolean;
+        knob?: string;
+        path?: string;
+    }
+}
 
 
 /**
@@ -124,7 +141,8 @@ export type CUGLLabelNode = {
             | "right"
             | "hard left"
             | "true center"
-            | "hard right";
+            | "hard right"
+            | "justify";
         valign?:
             | "top"
             | "middle"
@@ -153,7 +171,8 @@ export type CUGLTextFieldNode = {
             | "right"
             | "hard left"
             | "true center"
-            | "hard right";
+            | "hard right"
+            | "justify";
         valign?:
             | "top"
             | "middle"
@@ -186,8 +205,18 @@ export type CUGLRectNode = {
 export type CUGLPolyNode = {
     type: "Solid";
     data: Data & {
-        polygon?: number[] | Poly;
+        polygon: number[] | Poly;
         color?: CUGLRGBA | string;
+    };
+    layout?: {
+        l_offset?: number;
+        r_offset?: number;
+        t_offset?: number;
+        b_offset?: number;
+        x_absolute?: boolean;
+        y_absolute?: boolean;
+        x_anchor?: "left" | "center" | "right" | "fill";
+        y_anchor?: "bottom" | "middle" | "top" | "fill";
     };
 };
 
@@ -209,21 +238,10 @@ export type CUGLPathNode = {
 };
 
 /**
- * A SVG node
+ * Supported Figma to CUGL format types (can be added to in future use)
  */
-export type CUGLSVGNode = {
-    type: "SVG";
-    data: Data & {
-        commands?: string;
-    };
-};
-
-
 export type CUGLFormatType = {
-    type: "Anchored" | "Float";
-    orientation?: "horizontal" | "vertical";
-    x_alignment?: "left" | "center" | "right";
-    y_alignment?: "bottom" | "middle" | "top";
+    type: "Figma";
 }
 
 
@@ -235,27 +253,14 @@ export type CUGLAnchoredLayoutMixin = {
     children: {
         [key: string]: {
             layout: {
-                x_offset?: number;
-                y_offset?: number;
-                absolute?: boolean;
-                x_anchor?: "left" | "center" | "right" | "fill";
-                y_anchor?: "bottom" | "middle" | "top" | "fill";
-            };
-        };
-    };
-};
-
-
-/**
- * Layout information for a float layout
- */
-export type CUGLFloatLayoutMixin = {
-    format: CUGLFormatType;
-    children: {
-        [key: string]: {
-            layout: {
-                priority: number;
-                padding?: CUGLLBRT
+                left_offset?: number;
+                right_offset?: number;
+                top_offset?: number;
+                bottom_offset?: number;
+                x_absolute?: boolean;
+                y_absolute?: boolean;
+                x_anchor?: "left" | "center" | "right" | "left+right" | "scale";
+                y_anchor?: "bottom" | "middle" | "top" | "top+bottom" | "scale";
             };
         };
     };
@@ -265,9 +270,9 @@ export type CUGLFloatLayoutMixin = {
 /**
  * A type for supported layouts
  *
- * Figma only supports anchor and float layout
+ * Figma only supports anchor and no layout
  */
-type CUGLLayoutMixin = {} | CUGLAnchoredLayoutMixin | CUGLFloatLayoutMixin;
+export type CUGLLayoutMixin = {} | CUGLAnchoredLayoutMixin
 
 
 /**

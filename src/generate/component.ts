@@ -1,13 +1,15 @@
 /*
- * frame.ts
+ * component.ts
  *
- * Module generating CUGL generic scene nodes.
+ * Module generating CUGL generic scene nodes as components should not be used
+ * inside figma scenes and as such will not be treated different from frames.
  *
  * In CUGL, scene nodes are used to group together individual elements into a
  * single coordinate space. They serve the same purpose as frames in Figma.
  *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
+ * Date: 4/27/25
  */
 import { roundToFixed } from "../util";
 import {
@@ -16,30 +18,30 @@ import {
   CUGLChildrenMixin,
   CUGLFormatType,
 } from "../types";
-import { 
+import {  
     genChildrenByAnchor 
 } from "./children";
 
 /**
- * Returns a scene node corresponding to the given frame or group.
- * A group node is treated as a frame with no set layout mode. The
- * default layout node is Anchored.
+ * Returns a component node corresponding to the given component
  *
- * @param node      The frame or group to convert
- * @param parent    The parent of the frame or group
- * @param root      True if the root node, false otherwise
+ * This function treates components the same as frames as they are not
+ * meant to be included in figma scenes, but used to create instances.
  *
- * @return a scene node corresponding to the given frame or group
+ * @param node      The component to convert
+ * @param parent    The parent of the component
+ * @param root      True if root node, false otherwise
+ *
+ * @return an component node corresponding to the given component
  */
-export async function genFrame(node: FrameNode | GroupNode, parent: SceneNode, root: boolean = false) {
-    // Layout the children
+export async function genComponent(node: ComponentNode, parent: SceneNode, root: boolean = false) {
     let children = undefined;
     let format = undefined;
     children = await genChildrenByAnchor(node);
     format = {
         type: "Figma",
     } as CUGLFormatType;
-
+    
     let ypos = parent.height ? parent.height - node.height - node.y : -node.y;
     const frameCode: CUGLBaseNode & CUGLChildrenMixin & CUGLLayoutMixin = {
         type: "Node",

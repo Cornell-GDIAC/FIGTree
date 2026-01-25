@@ -6,16 +6,15 @@
  * This module recursively expands the nodes into each type. We assume that
  * the top level node is a Figma frame.
  *
- * Names are assigned according the layer name in Figma. Names must be valid
- * identifiers (numbers, letters, underscore, and not beginning with a number).
- * Only the root node may not have a name.
+ * Special UI elements are implemented through instances and components. They
+ * are marked by the component property "Tag". The value of the property is
+ * the type of special UI to implement. Users are expected to follow the
+ * specification for creating each special UI type in figma. Users are also expected
+ * to use instances in the figma scene rather than the component itself.
  *
- * If a name contains a colon, then the word before the colon is a "tag", 
- * either expressing the UI element associated with this node, or (in the
- * case of complex UI elements like buttons) a parameter in the parent node.
- *
- * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell
- * Date: 1/24/24
+ * Authors: Walker White, Enoch Chen, Skyler Krouse, Aidan Campbell, Joaquin Rivera,
+ * Sebastian Rivera
+ * Date: 4/27/25
  */
 
 // Import the relevant types
@@ -30,10 +29,10 @@ import {
 // The relevant support functions for this package
 import { genFrame } from "./frame";
 import { genImage } from "./image";
-import { genButton } from "./button";
 import { genInstance } from "./instance";
-import { genLabel, genTextField } from "./text";
-import { genRectangle, genEllipse, genPolygon } from "./shape";
+import { genLabel } from "./text";
+import { genRectangle, genEllipse, genPolygon, genPath, genVector, genVectorPolygon } from "./shape";
+import { genComponent } from "./component";
 
 // Map for exporting textures
 export let imageHashMap = new Map<string, string>();
@@ -41,111 +40,51 @@ export let imageHashMap = new Map<string, string>();
 // Map for exporting fonts
 export let fontHashMap = new Map<string, number>();
 
-
-/**
- * Returns true if the string is a valid identifier name
- *
- * @param str	The string to test
- *
- * @return true if the string is a valid identifier name
- */
-function isIdentifier(str) {
-    return /^[a-zA-Z_][a-zA-Z_0-9]*$/.test(str);
-}
-
-/**
- * Returns true if the string is a valid identifier name
- *
- * @param str	The string to test
- *
- * @return true if the string is a valid identifier name
- */
-function makeIdentifier(str) {
-	const regex = /^[a-zA-Z_0-9]*$/;
-	var result = str.replace(regex,'_');
-	var firstChar = result.charAt(0);
-	if (firstChar < '0' || firstChar > '9') {
-		result = "_"+result;
-	}
-	return result;
-}
-
-
 /**
  * Returns a CUGL node for the given Figma node
  *
- * If the node name has a colon, this looks at the keyword before the colon
- * for instructions on how to parse it.
  *
  * @param node  The Figma node
- *
+ * @param root  True if this is the root node, false otherwise. If not included,
+ * the default value is false.
+ * 
  * @return a CUGL node for the given Figma node
  */
-export async function generateNode(node: SceneNode): Promise<CUGLNode> {
+export async function generateNode(node: SceneNode, root : boolean = false): Promise<CUGLNode> {
     const parent = node.parent as SceneNode;
     
-    // Parse the name
-    let name = undefined;
-    let special = undefined;
-    if ('name' in node) {
-        const components = node.name.split(":");
-        if (components.length == 1) {
-            name = components[0];
-            if (!isIdentifier(name)) {
-            	name = makeIdentifier(name);
-            }
-        } else if (components.length == 2) {
-            special = components[0].toLowerCase();
-            name = components[1];
-        } else {
-            throw new Error(`${node.name} has too many colons`,);
-        }
-    }
-    
-    if (parent != undefined && name == undefined) {
+    if (parent != undefined && node.name == undefined) {
         throw new Error("Internal node is missing a name");
-    }
-    
-    // Handle the special ones first
-    if (special != undefined) {
-        switch (special) {
-        case "edit":
-            return genTextField(node, parent);
-        case "button":
-            return genButton(node, parent);
-        case "up":
-        case "down":
-            // These are internal parameters
-            break;
-        default:
-            // TODO: Support 9-slice plugin
-            throw new Error(`Keyword "${special}" is not recognized`,);
-        }
     }
     
     // Now do the standards
     switch (node.type) {
     case "TEXT":
-        return genLabel(node, parent);
+        return genLabel(node, parent, root);
     case "GROUP":
     case "FRAME":
-        return genFrame(node, parent);
+        return genFrame(node, parent, root);
     case "RECTANGLE":
         if (node.fills !== figma.mixed && node.fills?.[0]?.type === "IMAGE") {
-            return genImage(node, parent);
-        } else {
-            return genRectangle(node, parent);
+            return genImage(node, parent, root);
         }
+        return genRectangle(node, parent, root);
+    case "LINE":
+        return genPath(node, parent, root); 
+    case "VECTOR":
+        if (node.fillGeometry.length > 0) {
+            return genVectorPolygon(node, parent, root);
+        }
+        return genVector(node, parent, root);
     case "ELLIPSE":
-        return genEllipse(node, parent);
+        return genEllipse(node, parent, root);
     case "INSTANCE":
-        return genInstance(node, parent);
+        return genInstance(node, parent, root);
     case "COMPONENT":
-        return genFrame(node, parent);
+        return genComponent(node, parent, root);
     case "POLYGON":
-        return genPolygon(node, parent);
+        return genPolygon(node, parent, root);
     // TODO: All of the listed ones below should be investigated
-    case "COMPONENT_SET":
     case "STAR":
     default:
     	console.log("Parent:"+parent.type+","+parent.id);
@@ -214,7 +153,7 @@ export function generateFonts(): string {
     for (const font of fontHashMap.keys()) {
         fonts[font] = { 
             file: "fonts/[filename].png",
-            size: fontHashMap.get(font)
+            size: fontHashMap.get(font) as number
         };
     }
     fontHashMap.clear();
@@ -239,15 +178,17 @@ const getOutputFormat = () => {
  * the output if the user wants a Widget instead.
  *
  * @param node  The top level node
+ * @param root  True if this is the root node, false otherwise
  *
  * @return the CUGL scene graph from the top level node
  */
-export const generate = async (node: SceneNode,): Promise<CUGLNode | CUGLWidget> => {
-    let cuglNode = await generateNode(node);
+export const generate = async (node: SceneNode, root : boolean = false): Promise<CUGLNode | CUGLWidget> => {
+    let cuglNode = await generateNode(node, root);
     switch (getOutputFormat()) {
     case "node":
         return cuglNode;
     case "widget":
+        cuglNode.data.anchor = [0.5, 0.5]; // Layout manager applied to widget instance (layout manager requires centered anchor)
         return {
             variables: {},
             contents: cuglNode,
